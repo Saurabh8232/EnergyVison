@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -26,19 +26,49 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface BatteryOptimizerProps {
   devices: Device[];
-  historicalData: string;
 }
 
-export default function BatteryOptimizer({ devices, historicalData }: BatteryOptimizerProps) {
+async function getHistoricalData(deviceId: string) {
+    // TODO: Replace with your actual API endpoint
+    // The endpoint should return a JSON string of historical data for the given device ID.
+    const response = await fetch(`https://example.com/api/historical-data/${deviceId}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch historical data');
+    }
+    return response.json();
+}
+
+export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingData, setIsFetchingData] = useState(false);
+  const [historicalData, setHistoricalData] = useState<string | null>(null);
   const [result, setResult] = useState<PredictOptimalChargingScheduleOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  useEffect(() => {
+    if (selectedDeviceId) {
+      const fetchHistoricalData = async () => {
+        setIsFetchingData(true);
+        setError(null);
+        try {
+          const data = await getHistoricalData(selectedDeviceId);
+          setHistoricalData(JSON.stringify(data));
+        } catch (e) {
+          setError('Failed to fetch historical data for the selected device.');
+          console.error(e);
+        } finally {
+          setIsFetchingData(false);
+        }
+      };
+      fetchHistoricalData();
+    }
+  }, [selectedDeviceId]);
+
   const handleOptimize = async () => {
-    if (!selectedDeviceId) {
-      setError('Please select a device.');
+    if (!selectedDeviceId || !historicalData) {
+      setError('Please select a device and ensure its historical data is available.');
       return;
     }
     setIsLoading(true);
@@ -95,16 +125,16 @@ export default function BatteryOptimizer({ devices, historicalData }: BatteryOpt
                 <SelectValue placeholder="Select a device" />
               </SelectTrigger>
               <SelectContent>
-                {devices.filter(d => d.type === 'Battery').map((device) => (
+                {devices.map((device) => (
                   <SelectItem key={device.id} value={device.id}>
                     {device.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleOptimize} disabled={isLoading || !selectedDeviceId}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? 'Analyzing...' : 'Generate Plan'}
+            <Button onClick={handleOptimize} disabled={isLoading || isFetchingData || !selectedDeviceId || !historicalData}>
+              {(isLoading || isFetchingData) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isLoading ? 'Analyzing...' : isFetchingData ? 'Loading Data...' : 'Generate Plan'}
             </Button>
         </div>
         
