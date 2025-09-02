@@ -24,19 +24,29 @@ import { Bot, Loader2, Volume2, CalendarClock, Activity, Info } from 'lucide-rea
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { historicalBatteryDataForDevice } from '@/lib/data';
 
 interface BatteryOptimizerProps {
   devices: Device[];
 }
 
 async function getHistoricalData(deviceId: string) {
-    // TODO: Replace with your actual API endpoint
-    // The endpoint should return a JSON string of historical data for the given device ID.
-    const response = await fetch(`https://example.com/api/historical-data/${deviceId}`);
-    if (!response.ok) {
-        throw new Error('Failed to fetch historical data');
+    // In a real app, you would fetch this from your server.
+    // When you build your API, you can replace this with:
+    /*
+    try {
+        const response = await fetch(`/api/historical-data/${deviceId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch historical data');
+        }
+        return response.json();
+    } catch (error) {
+        console.error('API call failed, returning static data:', error);
     }
-    return response.json();
+    */
+   
+    // Returning static data as a fallback.
+    return Promise.resolve(historicalBatteryDataForDevice);
 }
 
 export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
@@ -60,7 +70,7 @@ export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
             description: 'Loading historical data for the selected device.',
           });
           const data = await getHistoricalData(selectedDeviceId);
-          setHistoricalData(JSON.stringify(data));
+          setHistoricalData(data); // Data is already a JSON string from lib/data.ts
         } catch (e) {
           setError('Failed to fetch historical data for the selected device.');
           console.error(e);
