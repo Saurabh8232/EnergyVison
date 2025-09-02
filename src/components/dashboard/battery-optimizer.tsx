@@ -23,6 +23,7 @@ import type { Device } from '@/lib/types';
 import { Bot, Loader2, Volume2, CalendarClock, Activity, Info } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 interface BatteryOptimizerProps {
   devices: Device[];
@@ -46,6 +47,7 @@ export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
   const [result, setResult] = useState<PredictOptimalChargingScheduleOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (selectedDeviceId) {
@@ -53,6 +55,10 @@ export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
         setIsFetchingData(true);
         setError(null);
         try {
+          toast({
+            title: 'Fetching Data',
+            description: 'Loading historical data for the selected device.',
+          });
           const data = await getHistoricalData(selectedDeviceId);
           setHistoricalData(JSON.stringify(data));
         } catch (e) {
@@ -64,7 +70,7 @@ export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
       };
       fetchHistoricalData();
     }
-  }, [selectedDeviceId]);
+  }, [selectedDeviceId, toast]);
 
   const handleOptimize = async () => {
     if (!selectedDeviceId || !historicalData) {
@@ -78,6 +84,11 @@ export default function BatteryOptimizer({ devices }: BatteryOptimizerProps) {
         audioRef.current = null;
     }
     setResult(null);
+
+    toast({
+      title: 'AI Analysis Started',
+      description: 'The AI is now analyzing the battery data.',
+    });
 
     try {
       const output = await predictOptimalChargingSchedule({
