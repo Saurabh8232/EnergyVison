@@ -1,18 +1,15 @@
 import { BatteryCharging, Sun, Zap, Network } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
-import BatteryOptimizer from '@/components/dashboard/battery-optimizer';
-import type { Device, TimeSeriesData } from '@/lib/types';
-import { devices, solarGenerationData, batteryLoadData } from '@/lib/data';
+import type { TimeSeriesData } from '@/lib/types';
+import { solarGenerationData, batteryLoadData } from '@/lib/data';
 
 async function getDashboardData(): Promise<{
   solarGenerationData: TimeSeriesData[],
-  batteryLoadData: TimeSeriesData[],
-  devices: Device[]
+  batteryLoadData: TimeSeriesData[]
 }> {
   // In a real app, you would fetch this data from your server using a relative path.
   // We will return static data for now as a placeholder.
-  // When you build your API, you can replace this with:
   /*
   try {
     const response = await fetch('/api/dashboard-data', {
@@ -21,7 +18,11 @@ async function getDashboardData(): Promise<{
     if (!response.ok) {
       throw new Error('Failed to fetch dashboard data');
     }
-    return response.json();
+    const data = await response.json();
+    return {
+        solarGenerationData: data.solarGenerationData,
+        batteryLoadData: data.batteryLoadData
+    }
   } catch (error) {
     console.error('API call failed, returning static data:', error);
   }
@@ -30,15 +31,12 @@ async function getDashboardData(): Promise<{
   // Returning static data as a fallback.
   return Promise.resolve({
     solarGenerationData,
-    batteryLoadData,
-    devices
+    batteryLoadData
   });
 }
 
 export default async function DashboardPage() {
-  // In a real app, you would fetch this data from your server.
-  // We'll use placeholder data for now.
-  const { solarGenerationData: fetchedSolarData, batteryLoadData: fetchedBatteryData, devices: fetchedDevices } = await getDashboardData();
+  const { solarGenerationData: fetchedSolarData, batteryLoadData: fetchedBatteryData } = await getDashboardData();
 
 
   return (
@@ -76,9 +74,6 @@ export default async function DashboardPage() {
           batteryData={fetchedBatteryData}
         />
         
-        <BatteryOptimizer
-          devices={fetchedDevices.filter(d => d.type === 'Battery')}
-        />
       </div>
     </main>
   );
