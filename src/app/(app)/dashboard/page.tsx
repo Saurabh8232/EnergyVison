@@ -11,8 +11,6 @@ async function getDashboardData(): Promise<{
   acParametersData: TimeSeriesData[],
 }> {
   // In a real app, you would fetch this data from your server using a relative path.
-  // We will return static data for now as a placeholder.
-  /*
   try {
     const response = await fetch('/api/dashboard-data', {
       next: { revalidate: 60 } // Re-fetch data every 60 seconds
@@ -30,7 +28,6 @@ async function getDashboardData(): Promise<{
   } catch (error) {
     console.error('API call failed, returning static data:', error);
   }
-  */
   
   // Returning static data as a fallback.
   return Promise.resolve({
