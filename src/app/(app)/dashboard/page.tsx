@@ -2,11 +2,13 @@ import { Sun, BatteryCharging, Thermometer, CloudSun, Gauge, Zap } from 'lucide-
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import type { TimeSeriesData } from '@/lib/types';
-import { solarGenerationData, batteryLoadData } from '@/lib/data';
+import { solarGenerationData, batteryLoadData, solarParametersData, acParametersData } from '@/lib/data';
 
 async function getDashboardData(): Promise<{
   solarGenerationData: TimeSeriesData[],
-  batteryLoadData: TimeSeriesData[]
+  batteryLoadData: TimeSeriesData[],
+  solarParametersData: TimeSeriesData[],
+  acParametersData: TimeSeriesData[],
 }> {
   // In a real app, you would fetch this data from your server using a relative path.
   // We will return static data for now as a placeholder.
@@ -21,7 +23,9 @@ async function getDashboardData(): Promise<{
     const data = await response.json();
     return {
         solarGenerationData: data.solarGenerationData,
-        batteryLoadData: data.batteryLoadData
+        batteryLoadData: data.batteryLoadData,
+        solarParametersData: data.solarParametersData,
+        acParametersData: data.acParametersData,
     }
   } catch (error) {
     console.error('API call failed, returning static data:', error);
@@ -31,12 +35,19 @@ async function getDashboardData(): Promise<{
   // Returning static data as a fallback.
   return Promise.resolve({
     solarGenerationData,
-    batteryLoadData
+    batteryLoadData,
+    solarParametersData,
+    acParametersData
   });
 }
 
 export default async function DashboardPage() {
-  const { solarGenerationData: fetchedSolarData, batteryLoadData: fetchedBatteryData } = await getDashboardData();
+  const { 
+    solarGenerationData: fetchedSolarData, 
+    batteryLoadData: fetchedBatteryData,
+    solarParametersData: fetchedSolarParams,
+    acParametersData: fetchedAcParams,
+  } = await getDashboardData();
 
 
   return (
@@ -96,6 +107,8 @@ export default async function DashboardPage() {
         <PowerCharts
           solarData={fetchedSolarData}
           batteryData={fetchedBatteryData}
+          solarParamsData={fetchedSolarParams}
+          acParamsData={fetchedAcParams}
         />
         
       </div>

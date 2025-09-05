@@ -8,7 +8,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from '@/components/ui/chart';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Bar, BarChart } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Bar, BarChart, Line, LineChart } from 'recharts';
 import type { TimeSeriesData } from '@/lib/types';
 
 const chartConfigSolar = {
@@ -29,12 +29,25 @@ const chartConfigBatteryLoad = {
   },
 };
 
+const chartConfigVoltageCurrent = {
+  voltage: {
+    label: 'Voltage (V)',
+    color: 'hsl(var(--chart-1))',
+  },
+  current: {
+    label: 'Current (A)',
+    color: 'hsl(var(--chart-3))',
+  },
+};
+
 interface PowerChartsProps {
   solarData: TimeSeriesData[];
   batteryData: TimeSeriesData[];
+  solarParamsData: TimeSeriesData[];
+  acParamsData: TimeSeriesData[];
 }
 
-export default function PowerCharts({ solarData, batteryData }: PowerChartsProps) {
+export default function PowerCharts({ solarData, batteryData, solarParamsData, acParamsData }: PowerChartsProps) {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
@@ -104,6 +117,58 @@ export default function PowerCharts({ solarData, batteryData }: PowerChartsProps
               <Bar dataKey="battery" yAxisId="left" fill="var(--color-battery)" radius={4} />
               <Bar dataKey="load" yAxisId="right" fill="var(--color-load)" radius={4} />
             </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Solar Parameters</CardTitle>
+          <CardDescription>Real-time solar voltage and current.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={chartConfigVoltageCurrent} className="h-[250px] w-full">
+            <LineChart data={solarParamsData} margin={{ left: -20, right: 10 }}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="time"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                fontSize={12}
+              />
+              <YAxis yAxisId="left" orientation="left" stroke="var(--color-voltage)" tickLine={false} axisLine={false} unit="V" fontSize={12} />
+              <YAxis yAxisId="right" orientation="right" stroke="var(--color-current)" tickLine={false} axisLine={false} unit="A" fontSize={12} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Line dataKey="voltage" type="monotone" yAxisId="left" stroke="var(--color-voltage)" strokeWidth={2} dot={false} />
+              <Line dataKey="current" type="monotone" yAxisId="right" stroke="var(--color-current)" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>AC Parameters</CardTitle>
+          <CardDescription>Real-time AC voltage and current.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={chartConfigVoltageCurrent} className="h-[250px] w-full">
+            <LineChart data={acParamsData} margin={{ left: -20, right: 10 }}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="time"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                fontSize={12}
+              />
+              <YAxis yAxisId="left" orientation="left" stroke="var(--color-voltage)" tickLine={false} axisLine={false} unit="V" fontSize={12} />
+              <YAxis yAxisId="right" orientation="right" stroke="var(--color-current)" tickLine={false} axisLine={false} unit="A" fontSize={12} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Line dataKey="voltage" type="monotone" yAxisId="left" stroke="var(--color-voltage)" strokeWidth={2} dot={false} />
+              <Line dataKey="current" type="monotone" yAxisId="right" stroke="var(--color-current)" strokeWidth={2} dot={false} />
+            </LineChart>
           </ChartContainer>
         </CardContent>
       </Card>
