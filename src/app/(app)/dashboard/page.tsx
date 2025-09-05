@@ -10,23 +10,27 @@ async function getDashboardData(): Promise<{
   solarParametersData: TimeSeriesData[],
   acParametersData: TimeSeriesData[],
 }> {
-  // In a real app, you would fetch this data from your server using a relative path.
-  try {
-    const response = await fetch('/api/dashboard-data', {
-      next: { revalidate: 60 } // Re-fetch data every 60 seconds
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch dashboard data');
+  // In a real app, you would fetch this data from your server.
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (baseUrl) {
+    try {
+      const response = await fetch(`${baseUrl}/api/dashboard-data`, {
+        next: { revalidate: 60 } // Re-fetch data every 60 seconds
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard data');
+      }
+      const data = await response.json();
+      return {
+          solarGenerationData: data.solarGenerationData,
+          batteryLoadData: data.batteryLoadData,
+          solarParametersData: data.solarParametersData,
+          acParametersData: data.acParametersData,
+      }
+    } catch (error) {
+      console.error('API call failed, returning static data:', error);
     }
-    const data = await response.json();
-    return {
-        solarGenerationData: data.solarGenerationData,
-        batteryLoadData: data.batteryLoadData,
-        solarParametersData: data.solarParametersData,
-        acParametersData: data.acParametersData,
-    }
-  } catch (error) {
-    console.error('API call failed, returning static data:', error);
   }
   
   // Returning static data as a fallback.
