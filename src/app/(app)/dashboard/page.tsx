@@ -1,4 +1,4 @@
-import { BatteryCharging, Sun, Zap, Network } from 'lucide-react';
+import { Sun, BatteryCharging, Thermometer, CloudSun, Gauge, Zap } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import type { TimeSeriesData } from '@/lib/types';
@@ -44,28 +44,52 @@ export default async function DashboardPage() {
       <div className="grid gap-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Solar Power Generation"
+            title="Temperature"
+            value="25°C"
+            icon={Thermometer}
+            description="Ambient temperature"
+          />
+          <StatCard
+            title="Illuminance"
+            value="800 lux"
+            icon={Sun}
+            description="Outdoor light level"
+          />
+          <StatCard
+            title="Weather Report"
+            value="Partly Cloudy"
+            icon={CloudSun}
+            description="Light breeze"
+          />
+          <StatCard
+            title="Power Factor"
+            value="0.98"
+            icon={Gauge}
+            description="Optimal efficiency"
+          />
+          <StatCard
+            title="Battery Voltage"
+            value="48.2 V"
+            icon={BatteryCharging}
+            description="Nominal voltage"
+          />
+          <StatCard
+            title="Frequency"
+            value="50.1 Hz"
+            icon={Zap}
+            description="Stable frequency"
+          />
+           <StatCard
+            title="Solar Power"
             value="4.2 kW"
             icon={Sun}
             description="+20.1% from last hour"
           />
-          <StatCard
-            title="Battery Level"
-            value="85%"
-            icon={BatteryCharging}
-            description="Optimal charge level"
-          />
-          <StatCard
-            title="Load Consumption"
-            value="1.8 kW"
+           <StatCard
+            title="Energy"
+            value="15.3 kWh"
             icon={Zap}
-            description="Normal consumption"
-          />
-          <StatCard
-            title="Grid Status"
-            value="Connected"
-            icon={Network}
-            description="Grid power is active"
+            description="Total generated today"
           />
         </div>
 
