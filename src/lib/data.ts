@@ -1,11 +1,7 @@
 import type { Device, TimeSeriesData } from './types';
 
 export const devices: Device[] = [
-  { id: 'device-01', name: 'Main Power Unit', status: 'Connected', type: 'Battery' },
-  { id: 'device-02', name: 'Solar Panel Array 1', status: 'Connected', type: 'Solar' },
-  { id: 'device-03', name: 'Backup Generator', status: 'Disconnected', type: 'Generator' },
-  { id: 'device-04', name: 'Building A Sub-meter', status: 'Connected', type: 'Meter' },
-  { id: 'device-05', name: 'HVAC System', status: 'Connected', type: 'HVAC' },
+  { id: 'esp32-01', name: 'ESP32', status: 'Connected', type: 'Microcontroller' },
 ];
 
 export const solarGenerationData: TimeSeriesData[] = [
