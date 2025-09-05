@@ -11,10 +11,9 @@ async function getDashboardData(): Promise<{
   acParametersData: TimeSeriesData[],
 }> {
   // In a real app, you would fetch this data from your server.
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9002';
 
-  if (baseUrl) {
-    try {
+  try {
       const response = await fetch(`${baseUrl}/api/dashboard-data`, {
         next: { revalidate: 60 } // Re-fetch data every 60 seconds
       });
@@ -31,7 +30,6 @@ async function getDashboardData(): Promise<{
     } catch (error) {
       console.error('API call failed, returning static data:', error);
     }
-  }
   
   // Returning static data as a fallback.
   return Promise.resolve({
