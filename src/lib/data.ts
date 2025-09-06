@@ -74,7 +74,6 @@ export const alerts: Alert[] = [
   { id: '1', level: 'warning', message: 'Battery level at 25%. Consider reducing load.', timestamp: '2024-05-21T14:30:00Z' },
   { id: '2', level: 'critical', message: 'Grid power outage detected. Switched to battery backup.', timestamp: '2024-05-21T10:05:00Z' },
   { id: '3', level: 'info', message: 'Solar panel cleaning recommended for optimal performance.', timestamp: '2024-05-20T09:00:00Z' },
-  { id: '4', level: 'warning', message: 'Inverter temperature is high: 75°C.', timestamp: '2024-05-21T12:45:00Z' }
 ];
 
 export const predictionData: PredictionData[] = [
