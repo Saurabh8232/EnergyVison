@@ -1,15 +1,10 @@
-import { Sun, BatteryCharging, Thermometer, CloudSun, Gauge, Zap } from 'lucide-react';
+import { Sun, BatteryCharging, Cloud, CloudRain, Wind, MapPin, Gauge, Zap, Thermometer } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
-import type { TimeSeriesData } from '@/lib/types';
-import { solarGenerationData, batteryLoadData, solarParametersData, acParametersData } from '@/lib/data';
+import type { DashboardData } from '@/lib/types';
+import { staticDashboardData } from '@/lib/data';
 
-async function getDashboardData(): Promise<{
-  solarGenerationData: TimeSeriesData[],
-  batteryLoadData: TimeSeriesData[],
-  solarParametersData: TimeSeriesData[],
-  acParametersData: TimeSeriesData[],
-}> {
+async function getDashboardData(): Promise<DashboardData> {
   // In a real app, you would fetch this data from your server.
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9002';
 
@@ -20,32 +15,22 @@ async function getDashboardData(): Promise<{
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard data');
       }
-      const data = await response.json();
-      return {
-          solarGenerationData: data.solarGenerationData,
-          batteryLoadData: data.batteryLoadData,
-          solarParametersData: data.solarParametersData,
-          acParametersData: data.acParametersData,
-      }
+      return await response.json();
     } catch (error) {
       console.error('API call failed, returning static data:', error);
     }
   
   // Returning static data as a fallback.
-  return Promise.resolve({
-    solarGenerationData,
-    batteryLoadData,
-    solarParametersData,
-    acParametersData
-  });
+  return Promise.resolve(staticDashboardData);
 }
 
 export default async function DashboardPage() {
   const { 
-    solarGenerationData: fetchedSolarData, 
-    batteryLoadData: fetchedBatteryData,
-    solarParametersData: fetchedSolarParams,
-    acParametersData: fetchedAcParams,
+    solarGenerationData, 
+    batteryLoadData,
+    solarParametersData,
+    acParametersData,
+    metrics,
   } = await getDashboardData();
 
 
@@ -54,60 +39,60 @@ export default async function DashboardPage() {
       <div className="grid gap-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Temperature"
-            value="25°C"
+            title="Box Temperature"
+            value={`${metrics.boxTemperature}°C`}
             icon={Thermometer}
-            description="Ambient temperature"
+            description="Internal device temperature"
           />
           <StatCard
-            title="Illuminance"
-            value="800 lux"
-            icon={Sun}
-            description="Outdoor light level"
+            title="Wind Speed"
+            value={`${metrics.windSpeed} m/s`}
+            icon={Wind}
+            description="Current wind speed"
           />
           <StatCard
-            title="Weather Report"
-            value="Partly Cloudy"
-            icon={CloudSun}
-            description="Light breeze"
+            title="Cloud Coverage"
+            value={`${metrics.cloudCoverage}%`}
+            icon={Cloud}
+            description="Sky cloud coverage"
           />
           <StatCard
-            title="Power Factor"
-            value="0.98"
-            icon={Gauge}
-            description="Optimal efficiency"
+            title="Rain"
+            value={`${metrics.rain} mm`}
+            icon={CloudRain}
+            description="Rainfall in the last hour"
           />
           <StatCard
-            title="Battery Voltage"
-            value="48.2 V"
-            icon={BatteryCharging}
-            description="Nominal voltage"
+            title="Latitude"
+            value={metrics.latitude.toString()}
+            icon={MapPin}
+            description="System latitude"
           />
           <StatCard
-            title="Frequency"
-            value="50.1 Hz"
-            icon={Zap}
-            description="Stable frequency"
+            title="Longitude"
+            value={metrics.longitude.toString()}
+            icon={MapPin}
+            description="System longitude"
           />
-           <StatCard
+          <StatCard
             title="Solar Power"
-            value="4.2 kW"
+            value={`${metrics.solarPower} kW`}
             icon={Sun}
             description="+20.1% from last hour"
           />
            <StatCard
             title="Energy"
-            value="15.3 kWh"
+            value={`${metrics.energy} kWh`}
             icon={Zap}
             description="Total generated today"
           />
         </div>
 
         <PowerCharts
-          solarData={fetchedSolarData}
-          batteryData={fetchedBatteryData}
-          solarParamsData={fetchedSolarParams}
-          acParamsData={fetchedAcParams}
+          solarData={solarGenerationData}
+          batteryData={batteryLoadData}
+          solarParamsData={solarParametersData}
+          acParamsData={acParametersData}
         />
         
       </div>

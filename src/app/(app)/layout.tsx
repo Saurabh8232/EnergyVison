@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Cable } from 'lucide-react';
+import { LayoutDashboard, Cable, TriangleAlert, TrendingUp } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -59,6 +59,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith('/alerts')}
+                tooltip="Alerts"
+              >
+                <Link href="/alerts">
+                  <TriangleAlert />
+                  <span>Alerts</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith('/predictions')}
+                tooltip="Predictions"
+              >
+                <Link href="/predictions">
+                  <TrendingUp />
+                  <span>Predictions</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
@@ -67,7 +91,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarTrigger className="md:hidden" />
           <div className="flex-1">
              <h1 className="text-lg font-semibold capitalize">
-                {pathname.split('/').pop()}
+                {pathname.split('/').pop()?.replace('-', ' ')}
              </h1>
           </div>
         </header>

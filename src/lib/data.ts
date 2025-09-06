@@ -1,7 +1,17 @@
-import type { Device, TimeSeriesData } from './types';
+import type { Device, TimeSeriesData, Alert, DashboardData, PredictionData } from './types';
 
 export const devices: Device[] = [
-  { id: 'esp32-01', name: 'ESP32', status: 'Connected', type: 'Microcontroller' },
+  { 
+    id: 'esp32-01', 
+    name: 'ESP32 Main', 
+    status: 'Connected', 
+    type: 'Microcontroller',
+    webServerStatus: 'Online',
+    controls: {
+      relayStatus: true,
+      deepSleep: false,
+    }
+  },
 ];
 
 export const solarGenerationData: TimeSeriesData[] = [
@@ -63,3 +73,39 @@ export const acParametersData: TimeSeriesData[] = [
   { time: '20:00', voltage: 232, current: 8.5 },
   { time: '22:00', voltage: 230, current: 6.8 },
 ];
+
+export const alerts: Alert[] = [
+  { id: '1', level: 'warning', message: 'Battery level at 25%. Consider reducing load.', timestamp: '2024-05-21T14:30:00Z' },
+  { id: '2', level: 'critical', message: 'Grid power outage detected. Switched to battery backup.', timestamp: '2024-05-21T10:05:00Z' },
+  { id: '3', level: 'info', message: 'Solar panel cleaning recommended for optimal performance.', timestamp: '2024-05-20T09:00:00Z' },
+  { id: '4', level: 'warning', message: 'Inverter temperature is high: 75°C.', timestamp: '2024-05-21T12:45:00Z' }
+];
+
+export const predictionData: PredictionData[] = [
+  { time: '13:00', actual: 4.2, predicted: 4.1 },
+  { time: '14:00', actual: 3.8, predicted: 3.9 },
+  { time: '15:00', actual: 3.2, predicted: 3.3 },
+  { time: '16:00', actual: 2.5, predicted: 2.6 },
+  { time: '17:00', predicted: 1.8 },
+  { time: '18:00', predicted: 0.9 },
+  { time: '19:00', predicted: 0.2 },
+];
+
+export const staticDashboardData: DashboardData = {
+  solarGenerationData,
+  batteryLoadData,
+  solarParametersData,
+  acParametersData,
+  predictionData,
+  alerts,
+  metrics: {
+    boxTemperature: 32,
+    windSpeed: 5.2,
+    cloudCoverage: 45,
+    rain: 0,
+    latitude: 34.0522,
+    longitude: -118.2437,
+    solarPower: 4.2,
+    energy: 15.3,
+  }
+};
