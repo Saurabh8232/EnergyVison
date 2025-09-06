@@ -69,6 +69,12 @@ const SheetContent = React.forwardRef<
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
+      <div className="sr-only">
+          <SheetTitle>Menu</SheetTitle>
+          <SheetDescription>
+            A list of navigation links for the app.
+          </SheetDescription>
+      </div>
     </SheetPrimitive.Content>
   </SheetPortal>
 ))
