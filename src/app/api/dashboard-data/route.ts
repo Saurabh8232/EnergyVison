@@ -2,30 +2,24 @@ import { NextResponse } from 'next/server';
 import { staticDashboardData } from '@/lib/data';
 
 export async function GET() {
-  // This is the ONLY place you need to change to connect to your live data.
-  // Replace the URL with your actual server's endpoint.
-  // Because this request is made from the server, there are no CORS issues.
+  // This is where you would fetch data from your live server.
+  // For now, we return static data to ensure the app works.
   try {
-    const response = await fetch('http://your-actual-server-url/data', {
-      // If your server requires an API key or other headers, add them here.
-      // headers: {
-      //   'Authorization': `Bearer ${process.env.YOUR_SERVER_API_KEY}`
-      // }
-    });
+    // Example of fetching from a real server (currently commented out)
+    // const response = await fetch('http://your-actual-server-url/data');
+    // if (!response.ok) {
+    //   throw new Error(`Failed to fetch data from server: ${response.statusText}`);
+    // }
+    // const data = await response.json();
+    // return NextResponse.json(data);
 
-    if (!response.ok) {
-      // If the call fails, log the error and fall back to static data
-      console.error(`Failed to fetch data from server: ${response.statusText}`);
-      return NextResponse.json(staticDashboardData);
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Return static data as a reliable fallback.
+    return NextResponse.json(staticDashboardData);
 
   } catch (error) {
-    console.error('Error fetching from external server:', error);
+    console.error('Error fetching dashboard data:', error);
     // If fetching from your server fails, you could return an error response
     // or fall back to static data.
-     return NextResponse.json(staticDashboardData);
+    return NextResponse.json(staticDashboardData, { status: 500 });
   }
 }
