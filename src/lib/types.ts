@@ -4,10 +4,6 @@ export type Device = {
   status: 'Connected' | 'Disconnected';
   type: string;
   webServerStatus: 'Online' | 'Offline';
-  controls?: {
-    relayStatus: boolean;
-    deepSleep: boolean;
-  }
 };
 
 export type TimeSeriesData = {

@@ -7,10 +7,6 @@ export const devices: Device[] = [
     status: 'Connected', 
     type: 'Microcontroller',
     webServerStatus: 'Online',
-    controls: {
-      relayStatus: true,
-      deepSleep: false,
-    }
   },
 ];
 
