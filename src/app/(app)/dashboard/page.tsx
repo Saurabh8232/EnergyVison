@@ -5,23 +5,26 @@ import type { DashboardData } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
 
 async function getDashboardData(): Promise<DashboardData> {
-  // In a real app, you would fetch this data from your server.
+  // This function fetches data from the app's own API route.
+  // This ensures there are no CORS issues after deployment.
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9002';
 
   try {
-      const response = await fetch(`${baseUrl}/api/dashboard-data`, {
-        next: { revalidate: 60 } // Re-fetch data every 60 seconds
+      // We use a relative path here to ensure the request is always on the same domain.
+      const response = await fetch('/api/dashboard-data', {
+        next: { revalidate: 1 } // Re-fetch data very frequently.
       });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
+        console.error('Failed to fetch dashboard data, status:', response.status);
+        return staticDashboardData; // Fallback to static data on error
       }
       return await response.json();
     } catch (error) {
       console.error('API call failed, returning static data:', error);
+      // In case of a network error or if the fetch fails completely.
+      return staticDashboardData;
     }
-  
-  // Returning static data as a fallback.
-  return Promise.resolve(staticDashboardData);
 }
 
 export default async function DashboardPage() {
