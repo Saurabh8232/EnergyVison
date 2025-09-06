@@ -6,15 +6,15 @@ import { alerts as staticAlerts } from '@/lib/data';
 import { formatDistanceToNow } from 'date-fns';
 
 const alertIcons = {
-  info: <Info className="h-5 w-5" />,
-  warning: <AlertTriangle className="h-5 w-5" />,
-  critical: <ShieldAlert className="h-5 w-5" />,
+  info: <Info className="h-5 w-5 text-blue-500" />,
+  warning: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
+  critical: <ShieldAlert className="h-5 w-5 text-red-500" />,
 };
 
 const alertColors = {
-  info: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  warning: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-  critical: 'bg-red-500/10 text-red-400 border-red-500/20',
+  info: 'border-blue-500/50 bg-blue-500/10',
+  warning: 'border-yellow-500/50 bg-yellow-500/10',
+  critical: 'border-destructive/50 bg-destructive/10 text-destructive-foreground',
 };
 
 async function getAlerts(): Promise<Alert[]> {

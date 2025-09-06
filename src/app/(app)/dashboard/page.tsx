@@ -1,4 +1,4 @@
-import { Sun, BatteryCharging, Cloud, CloudRain, Wind, MapPin, Gauge, Zap, Thermometer } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Wind, MapPin, Thermometer, Zap } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import type { DashboardData } from '@/lib/types';
@@ -7,11 +7,13 @@ import { staticDashboardData } from '@/lib/data';
 async function getDashboardData(): Promise<DashboardData> {
   // This function fetches data from the app's own API route.
   // This ensures there are no CORS issues after deployment.
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:9002';
+  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+    : 'http://localhost:9002';
 
   try {
-      // We use a relative path here to ensure the request is always on the same domain.
-      const response = await fetch('/api/dashboard-data', {
+      const url = `${baseUrl}/api/dashboard-data`;
+      const response = await fetch(url, {
         next: { revalidate: 1 } // Re-fetch data very frequently.
       });
 
