@@ -1,4 +1,4 @@
-import { Sun, Cloud, CloudRain, Wind, MapPin, Thermometer, Zap } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Wind, MapPin, Zap, Battery, Power, Bolt } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import type { DashboardData } from '@/lib/types';
@@ -46,10 +46,22 @@ export default async function DashboardPage() {
       <div className="grid gap-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Box Temperature"
-            value={`${metrics.boxTemperature}°C`}
-            icon={Thermometer}
-            description="Internal device temperature"
+            title="Inverter Voltage"
+            value={`${metrics.inverterVoltage} V`}
+            icon={Power}
+            description="Real-time inverter AC voltage"
+          />
+          <StatCard
+            title="Inverter Current"
+            value={`${metrics.inverterCurrent} A`}
+            icon={Bolt}
+            description="Real-time inverter AC current"
+          />
+          <StatCard
+            title="Battery"
+            value={`${metrics.batteryPercentage}%`}
+            icon={Battery}
+            description="Current battery charge level"
           />
           <StatCard
             title="Wind Speed"
@@ -89,9 +101,10 @@ export default async function DashboardPage() {
           />
            <StatCard
             title="Energy"
-            value={`${metrics.energy} kWh`}
+            value={`${metrics.energyGeneration} kWh`}
             icon={Zap}
-            description="Total generated today"
+            description={`Total Energy Generation Today`}
+            footerText={`${metrics.energyConsumption} kWh Consumed`}
           />
         </div>
 

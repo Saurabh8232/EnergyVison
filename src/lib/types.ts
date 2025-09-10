@@ -12,7 +12,7 @@ export type TimeSeriesData = {
 };
 
 export type Alert = {
-  id: string;
+  id:string;
   level: 'info' | 'warning' | 'critical';
   message: string;
   timestamp: string;
@@ -25,14 +25,17 @@ export type PredictionData = {
 }
 
 export type DashboardMetrics = {
-    boxTemperature: number;
     windSpeed: number;
     cloudCoverage: number;
     rain: number;
     latitude: number;
     longitude: number;
     solarPower: number;
-    energy: number;
+    energyGeneration: number;
+    energyConsumption: number;
+    inverterVoltage: number;
+    inverterCurrent: number;
+    batteryPercentage: number;
 }
 
 export type DashboardData = {

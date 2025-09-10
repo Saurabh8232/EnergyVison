@@ -148,8 +148,8 @@ export default function PowerCharts({ solarData, batteryData, solarParamsData, a
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>AC Parameters</CardTitle>
-          <CardDescription>Real-time AC voltage and current.</CardDescription>
+          <CardTitle>Inverter Parameters</CardTitle>
+          <CardDescription>Real-time inverter voltage and current.</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfigVoltageCurrent} className="h-[250px] w-full">

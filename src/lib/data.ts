@@ -98,13 +98,16 @@ export const staticDashboardData: DashboardData = {
   predictionData,
   alerts,
   metrics: {
-    boxTemperature: 32,
     windSpeed: 5.2,
     cloudCoverage: 45,
     rain: 0,
     latitude: 34.0522,
     longitude: -118.2437,
     solarPower: 4.2,
-    energy: 15.3,
+    energyGeneration: 15.3,
+    energyConsumption: 5.1,
+    inverterVoltage: 230,
+    inverterCurrent: 8.2,
+    batteryPercentage: 88,
   }
 };
