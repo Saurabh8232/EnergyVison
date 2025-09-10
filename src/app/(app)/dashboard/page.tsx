@@ -3,12 +3,19 @@ import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import type { DashboardData } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
+import { headers } from 'next/headers';
 
 async function getDashboardData(): Promise<DashboardData> {
   // This function fetches data from the app's own API route.
   // This ensures there are no CORS issues after deployment.
   try {
-      const response = await fetch('/api/dashboard-data', {
+      // Construct the absolute URL for the API endpoint.
+      // This is necessary for server-side fetching.
+      const host = headers().get('host') || 'localhost:9002';
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const url = `${protocol}://${host}/api/dashboard-data`;
+      
+      const response = await fetch(url, {
         next: { revalidate: 1 } // Re-fetch data very frequently.
       });
 
