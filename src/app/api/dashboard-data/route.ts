@@ -6,13 +6,54 @@ import { staticDashboardData } from '@/lib/data';
 // In a real production app, you would use a database like Firestore or Redis.
 let latestDashboardData: DashboardData = staticDashboardData;
 
+// Helper function to generate a random number within a range
+const getRandomValue = (min: number, max: number, decimals: number = 2) => {
+    return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+};
+
+const generateRandomDashboardData = (): DashboardData => {
+    // Create a mutable copy of the static data
+    const data = JSON.parse(JSON.stringify(staticDashboardData)) as DashboardData;
+
+    // Randomize metrics for the stat cards
+    data.metrics.inverterVoltage = getRandomValue(220, 240);
+    data.metrics.inverterCurrent = getRandomValue(5, 11);
+    data.metrics.batteryPercentage = getRandomValue(40, 100, 0);
+    data.metrics.windSpeed = getRandomValue(0, 15);
+    data.metrics.cloudCoverage = getRandomValue(0, 100, 0);
+    data.metrics.rain = getRandomValue(0, 5);
+    data.metrics.solarPower = getRandomValue(0, 5);
+    data.metrics.energyGeneration = getRandomValue(10, 25);
+    data.metrics.energyConsumption = getRandomValue(3, 8);
+
+    // Make the charts look like they are updating by randomizing the last value
+    const randomizeLastPoint = (arr: any[], key: string, min: number, max: number) => {
+        if (arr.length > 0) {
+            arr[arr.length - 1][key] = getRandomValue(min, max);
+        }
+    };
+    
+    randomizeLastPoint(data.solarGenerationData, 'power', 0, 5);
+    randomizeLastPoint(data.batteryLoadData, 'battery', 40, 100);
+    randomizeLastPoint(data.batteryLoadData, 'load', 1, 3);
+    randomizeLastPoint(data.solarParametersData, 'voltage', 350, 410);
+    randomizeLastPoint(data.solarParametersData, 'current', 1, 11);
+    randomizeLastPoint(data.acParametersData, 'voltage', 220, 240);
+    randomizeLastPoint(data.acParametersData, 'current', 5, 11);
+
+
+    return data;
+}
+
+
 export async function GET() {
   // This endpoint is called by the dashboard to get the most recent data.
-  // It returns the data from our in-memory store.
+  // It now returns freshly randomized data on each call to simulate a live feed.
   try {
-    return NextResponse.json(latestDashboardData);
+    const randomData = generateRandomDashboardData();
+    return NextResponse.json(randomData);
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
+    console.error('Error generating random dashboard data:', error);
     // If there's an error, fall back to the initial static data.
     return NextResponse.json(staticDashboardData, { status: 500 });
   }
@@ -20,15 +61,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   // This endpoint is called by your ESP32 to send new sensor data.
+  // For the simulation, we'll just log that we received it, but in a real
+  // scenario, you'd update `latestDashboardData` here.
   try {
     const newData = await request.json();
-    
-    // You could add validation here to ensure the data from the ESP32 is in the correct format.
-    // For now, we'll assume it's valid and update our in-memory store.
-    latestDashboardData = {
-        ...latestDashboardData,
-        ...newData,
-    };
+    console.log("Received data from ESP32:", newData);
+    // In a real app, you would update your data store here.
+    // latestDashboardData = { ... }; 
     
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200 });
   } catch (error) {
