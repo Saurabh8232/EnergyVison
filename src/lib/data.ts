@@ -71,9 +71,13 @@ export const acParametersData: TimeSeriesData[] = [
 ];
 
 export const alerts: Alert[] = [
-  { id: '1', level: 'warning', message: 'Battery level at 25%. Consider reducing load.', timestamp: '2024-05-21T14:30:00Z' },
-  { id: '2', level: 'critical', message: 'Grid power outage detected. Switched to battery backup.', timestamp: '2024-05-21T10:05:00Z' },
-  { id: '3', level: 'info', message: 'Solar panel cleaning recommended for optimal performance.', timestamp: '2024-05-20T09:00:00Z' },
+  { id: '1', level: 'warning', message: 'Strong sunlight detected, but solar generation is unexpectedly low. Check panels.', timestamp: '2024-05-22T13:00:00Z' },
+  { id: '2', level: 'info', message: 'Battery reached full charge and is now discharging to supply load.', timestamp: '2024-05-22T12:30:00Z' },
+  { id: '3', level: 'critical', message: 'System overload detected. Non-essential loads have been shed.', timestamp: '2024-05-22T11:00:00Z' },
+  { id: '4', level: 'warning', message: 'Device box temperature is high: 45°C. Cooling fan activated.', timestamp: '2024-05-22T10:45:00Z' },
+  { id: '5', level: 'info', message: 'Sudden drop in sunlight detected. Potential cloud cover.', timestamp: '2024-05-22T10:15:00Z' },
+  { id: '6', level: 'warning', message: 'No solar power generated during daylight hours. Check inverter status.', timestamp: '2024-05-22T09:30:00Z' },
+  { id: '7', level: 'warning', message: 'Solar power is being generated, but the battery is not charging. Check battery connection.', timestamp: '2024-05-22T09:00:00Z' },
 ];
 
 export const predictionData: PredictionData[] = [
