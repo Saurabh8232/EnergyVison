@@ -7,13 +7,8 @@ import { staticDashboardData } from '@/lib/data';
 async function getDashboardData(): Promise<DashboardData> {
   // This function fetches data from the app's own API route.
   // This ensures there are no CORS issues after deployment.
-  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    : 'http://localhost:9002';
-
   try {
-      const url = `${baseUrl}/api/dashboard-data`;
-      const response = await fetch(url, {
+      const response = await fetch('/api/dashboard-data', {
         next: { revalidate: 1 } // Re-fetch data very frequently.
       });
 
