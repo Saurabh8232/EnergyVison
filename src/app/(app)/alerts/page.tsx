@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { cn } from '@/lib/utils';
 import type { Alert } from '@/lib/types';
 import { alerts as staticAlerts } from '@/lib/data';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 
 const alertIcons = {
   info: <Info className="h-5 w-5 text-blue-500" />,
@@ -35,19 +35,23 @@ export default async function AlertsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {alerts.map((alert) => (
-              <div key={alert.id} className={cn('flex items-start gap-4 rounded-lg border p-4', alertColors[alert.level])}>
-                <div className="mt-1">
-                    {alertIcons[alert.level]}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium">{alert.message}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(alert.timestamp), { addSuffix: true })}
-                  </p>
-                </div>
-              </div>
-            ))}
+            {alerts.map((alert) => {
+                const alertDate = new Date(alert.timestamp);
+                return (
+                    <div key={alert.id} className={cn('flex items-start gap-4 rounded-lg border p-4', alertColors[alert.level])}>
+                        <div className="mt-1">
+                            {alertIcons[alert.level]}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                        <p className="font-medium">{alert.message}</p>
+                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                            <span>{formatDistanceToNow(alertDate, { addSuffix: true })}</span>
+                            <span className="text-xs text-muted-foreground/80">({format(alertDate, "yyyy-MM-dd HH:mm:ss")})</span>
+                        </div>
+                        </div>
+                    </div>
+                );
+            })}
           </div>
         </CardContent>
       </Card>
