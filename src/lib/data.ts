@@ -2,12 +2,26 @@ import type { Device, TimeSeriesData, Alert, DashboardData, PredictionData } fro
 
 export const devices: Device[] = [
   { 
-    id: 'esp32-01', 
+    id: 'esp32-main', 
     name: 'ESP32 Main', 
     status: 'Connected', 
     type: 'Microcontroller',
     webServerStatus: 'Online',
   },
+  {
+    id: 'esp32-essential',
+    name: 'Essential ESP32',
+    status: 'Connected',
+    type: 'Microcontroller',
+    webServerStatus: 'Online',
+  },
+  {
+    id: 'esp32-non-essential',
+    name: 'Non-Essential ESP32',
+    status: 'Disconnected',
+    type: 'Microcontroller',
+    webServerStatus: 'Offline',
+  }
 ];
 
 export const solarGenerationData: TimeSeriesData[] = [
