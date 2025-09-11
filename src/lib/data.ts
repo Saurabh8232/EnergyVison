@@ -82,19 +82,13 @@ export const acParametersData: TimeSeriesData[] = [
 ];
 
 export const alerts: Alert[] = [
-  { id: '1', level: 'critical', message: 'Overload: System load exceeds capacity.', timestamp: '2024-05-23T14:00:00Z' },
-  { id: '2', level: 'info', message: 'Load Normal: System load has returned to normal levels.', timestamp: '2024-05-23T13:45:00Z' },
-  { id: '3', level: 'warning', message: 'High Load Warning: System load is approaching maximum capacity.', timestamp: '2024-05-23T13:30:00Z' },
-  { id: '4', level: 'critical', message: 'Invalid or missing load data. Check sensor and connection.', timestamp: '2024-05-23T13:15:00Z' },
-  { id: '5', level: 'critical', message: 'Solar generating but battery not charging. Check connections.', timestamp: '2024-05-23T12:00:00Z' },
-  { id: '6', level: 'info', message: 'Sudden drop in sunlight detected. Potential cloud cover.', timestamp: '2024-05-23T11:45:00Z' },
-  { id: '7', level: 'info', message: 'Unexpected power generated in very low sunlight.', timestamp: '2024-05-23T11:30:00Z' },
-  { id: '8', level: 'warning', message: 'Very low sunlight but panel underperforming.', timestamp: '2024-05-23T11:15:00Z' },
-  { id: '9', level: 'warning', message: 'Low sunlight but panel underperforming.', timestamp: '2024-05-23T11:00:00Z' },
-  { id: '10', level: 'warning', message: 'Moderate sunlight but panel underperforming.', timestamp: '2024-05-23T10:45:00Z' },
-  { id: '11', level: 'warning', message: 'Strong sunlight but panel underperforming.', timestamp: '2024-05-23T10:30:00Z' },
-  { id: '12', level: 'critical', message: 'Battery critically low – Discharge risk.', timestamp: '2024-05-23T09:00:00Z' },
-  { id: '13', level: 'warning', message: 'Battery fully charged – Overcharge risk.', timestamp: '2024-05-23T08:00:00Z' },
+    { id: '1', level: 'critical', message: 'Overload: System load exceeds capacity.', timestamp: '2024-05-23T14:00:00Z' },
+    { id: '2', level: 'warning', message: 'High Load Warning: System load is approaching maximum capacity.', timestamp: '2024-05-23T13:30:00Z' },
+    { id: '3', level: 'info', message: 'Load Normal: System load has returned to normal levels.', timestamp: '2024-05-23T13:45:00Z' },
+    { id: '4', level: 'critical', message: 'Solar generating but battery not charging. Check connections.', timestamp: '2024-05-23T12:00:00Z' },
+    { id: '5', level: 'warning', message: 'Strong sunlight but panel underperforming.', timestamp: '2024-05-23T10:30:00Z' },
+    { id: '6', level: 'info', message: 'Sudden drop in sunlight detected. Potential cloud cover.', timestamp: '2024-05-23T11:45:00Z' },
+    { id: '7', level: 'critical', message: 'Battery critically low – Discharge risk.', timestamp: '2024-05-23T09:00:00Z' },
 ];
 
 export const predictionData: PredictionData[] = [

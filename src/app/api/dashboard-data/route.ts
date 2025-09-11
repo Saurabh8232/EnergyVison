@@ -74,7 +74,7 @@ const generateRandomDashboardData = (): DashboardData => {
         const newAlert: Alert = {
             ...randomAlert,
             id: `alert-${Date.now()}-${Math.random()}`,
-            timestamp: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+            timestamp: new Date().toISOString(),
         };
         data.alerts.push(newAlert);
     }
