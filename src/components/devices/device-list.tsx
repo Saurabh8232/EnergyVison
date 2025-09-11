@@ -18,7 +18,7 @@ interface DeviceListProps {
 }
 
 export default function DeviceList({ devices: initialDevices }: DeviceListProps) {
-  const [devices] = useState(initialDevices);
+  const [devices] = useState(initialDevices || []);
   
   return (
     <Card className="mt-6">
