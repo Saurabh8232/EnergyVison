@@ -114,6 +114,7 @@ export const staticDashboardData: DashboardData = {
   acParametersData,
   predictionData,
   alerts,
+  devices,
   metrics: {
     windSpeed: 5.2,
     cloudCoverage: 45,

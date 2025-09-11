@@ -35,6 +35,7 @@ export type DashboardMetrics = {
     inverterVoltage: number;
     inverterCurrent: number;
     batteryPercentage: number;
+    powerFactor?: number;
 }
 
 export type DashboardData = {
@@ -44,5 +45,6 @@ export type DashboardData = {
   acParametersData: TimeSeriesData[];
   predictionData: PredictionData[];
   alerts: Alert[];
+  devices: Device[];
   metrics: DashboardMetrics;
 };

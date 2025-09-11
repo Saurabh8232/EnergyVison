@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { DashboardData, Alert, PredictionData } from '@/lib/types';
+import type { DashboardData, Alert, PredictionData, Device } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
 import { format } from 'date-fns';
 
@@ -60,6 +60,11 @@ const generateRandomDashboardData = (): DashboardData => {
             point.actual = getRandomValue(point.actual * 0.95, point.actual * 1.05);
         }
         point.predicted = getRandomValue(point.predicted * 0.95, point.predicted * 1.05);
+    });
+
+    // Randomize device status
+    data.devices.forEach((device: Device) => {
+        device.status = Math.random() > 0.3 ? 'Connected' : 'Disconnected';
     });
 
 
