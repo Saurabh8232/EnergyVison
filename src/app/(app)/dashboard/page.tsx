@@ -46,18 +46,6 @@ export default async function DashboardPage() {
       <div className="grid gap-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Inverter Voltage"
-            value={`${metrics.inverterVoltage} V`}
-            icon={Power}
-            description="Real-time inverter AC voltage"
-          />
-          <StatCard
-            title="Inverter Current"
-            value={`${metrics.inverterCurrent} A`}
-            icon={Bolt}
-            description="Real-time inverter AC current"
-          />
-          <StatCard
             title="Battery"
             value={`${metrics.batteryPercentage}%`}
             icon={Battery}
