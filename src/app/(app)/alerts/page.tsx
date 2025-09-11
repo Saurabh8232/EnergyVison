@@ -1,9 +1,9 @@
 import { AlertTriangle, Info, ShieldAlert } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import type { Alert } from '@/lib/types';
-import { alerts as staticAlerts } from '@/lib/data';
+import type { Alert, DashboardData } from '@/lib/types';
 import { format, formatDistanceToNow } from 'date-fns';
+import { headers } from 'next/headers';
 
 const alertIcons = {
   info: <Info className="h-5 w-5 text-blue-500" />,
@@ -18,9 +18,25 @@ const alertColors = {
 };
 
 async function getAlerts(): Promise<Alert[]> {
-  // In a real app, you would fetch this from your API
-  // For now, we return static data and reverse it to show newest first.
-  return Promise.resolve([...staticAlerts].reverse());
+  try {
+      const host = headers().get('host') || 'localhost:9002';
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      const url = `${protocol}://${host}/api/dashboard-data`;
+      
+      const response = await fetch(url, {
+        next: { revalidate: 1 } // Re-fetch data very frequently.
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch dashboard data, status:', response.status);
+        return []; // Fallback to empty array on error
+      }
+      const data: DashboardData = await response.json();
+      return data.alerts.reverse(); // Return and reverse alerts from the API
+    } catch (error) {
+      console.error('API call failed, returning empty array:', error);
+      return [];
+    }
 }
 
 export default async function AlertsPage() {

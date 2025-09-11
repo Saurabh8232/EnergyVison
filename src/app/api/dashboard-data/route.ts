@@ -1,23 +1,36 @@
 import { NextResponse } from 'next/server';
-import type { DashboardData } from '@/lib/types';
+import type { DashboardData, Alert } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
+import { format } from 'date-fns';
 
 // Use a simple in-memory variable to store the latest dashboard data.
 // In a real production app, you would use a database like Firestore or Redis.
-let latestDashboardData: DashboardData = staticDashboardData;
+let latestDashboardData: DashboardData = JSON.parse(JSON.stringify(staticDashboardData));
 
 // Helper function to generate a random number within a range
 const getRandomValue = (min: number, max: number, decimals: number = 2) => {
     return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 };
 
+// A pool of potential alerts to be triggered randomly.
+const alertPool: Omit<Alert, 'id' | 'timestamp'>[] = [
+    { level: 'critical', message: 'Overload: System load exceeds capacity.' },
+    { level: 'warning', message: 'High Load Warning: System load is approaching maximum capacity.' },
+    { level: 'info', message: 'Load Normal: System load has returned to normal levels.' },
+    { level: 'critical', message: 'Solar generating but battery not charging. Check connections.' },
+    { level: 'warning', message: 'Strong sunlight but panel underperforming.' },
+    { level: 'info', message: 'Sudden drop in sunlight detected. Potential cloud cover.' },
+    { level: 'critical', message: 'Battery critically low – Discharge risk.' },
+];
+
+
 const generateRandomDashboardData = (): DashboardData => {
-    // Create a mutable copy of the static data
-    const data = JSON.parse(JSON.stringify(staticDashboardData)) as DashboardData;
+    const data = JSON.parse(JSON.stringify(latestDashboardData)) as DashboardData;
 
     // Randomize metrics for the stat cards
     data.metrics.inverterVoltage = getRandomValue(220, 240);
     data.metrics.inverterCurrent = getRandomValue(5, 11);
+    data.metrics.powerFactor = getRandomValue(0.95, 0.99);
     data.metrics.batteryPercentage = getRandomValue(40, 100, 0);
     data.metrics.windSpeed = getRandomValue(0, 15);
     data.metrics.cloudCoverage = getRandomValue(0, 100, 0);
@@ -41,7 +54,24 @@ const generateRandomDashboardData = (): DashboardData => {
     randomizeLastPoint(data.acParametersData, 'voltage', 220, 240);
     randomizeLastPoint(data.acParametersData, 'current', 5, 11);
 
+    // ~20% chance to add a new alert to simulate real-time events.
+    if (Math.random() < 0.2) {
+        const randomAlert = alertPool[Math.floor(Math.random() * alertPool.length)];
+        const newAlert: Alert = {
+            ...randomAlert,
+            id: `alert-${Date.now()}-${Math.random()}`,
+            timestamp: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+        };
+        data.alerts.push(newAlert);
+    }
 
+    // Keep the total number of alerts from growing indefinitely.
+    if (data.alerts.length > 20) {
+        data.alerts.shift();
+    }
+
+
+    latestDashboardData = data;
     return data;
 }
 
@@ -66,7 +96,8 @@ export async function POST(request: Request) {
   try {
     const newData = await request.json();
     console.log("Received data from ESP32:", newData);
-    // In a real app, you would update your data store here.
+    // In a real app, you would update your data store here based on received data,
+    // and your alert generation logic would live here.
     // latestDashboardData = { ... }; 
     
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200 });
