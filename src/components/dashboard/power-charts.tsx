@@ -8,7 +8,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from '@/components/ui/chart';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Bar, BarChart, Line, LineChart } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Bar, BarChart, Line, LineChart, ComposedChart } from 'recharts';
 import type { TimeSeriesData } from '@/lib/types';
 
 const chartConfigSolar = {
@@ -18,18 +18,14 @@ const chartConfigSolar = {
   },
 };
 
-const chartConfigBatteryLoad = {
-  battery: {
-    label: 'Battery (%)',
-    color: 'hsl(var(--chart-2))',
-  },
-  load: {
-    label: 'Load (kW)',
-    color: 'hsl(var(--chart-5))',
-  },
-};
+const chartConfigBattery = {
+    battery: {
+      label: 'Battery (%)',
+      color: 'hsl(var(--chart-2))',
+    },
+  };
 
-const chartConfigVoltageCurrent = {
+const chartConfigInverter = {
   voltage: {
     label: 'Voltage (V)',
     color: 'hsl(var(--chart-1))',
@@ -37,6 +33,10 @@ const chartConfigVoltageCurrent = {
   current: {
     label: 'Current (A)',
     color: 'hsl(var(--chart-3))',
+  },
+  load: {
+    label: 'Load (kW)',
+    color: 'hsl(var(--chart-5))',
   },
 };
 
@@ -48,6 +48,13 @@ interface PowerChartsProps {
 }
 
 export default function PowerCharts({ solarData, batteryData, solarParamsData, acParamsData }: PowerChartsProps) {
+  
+    // Combine AC parameters and Load data for the inverter chart
+    const combinedInverterData = acParamsData.map((ac, index) => ({
+        ...ac,
+        load: batteryData[index]?.load ?? 0,
+      }));
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
@@ -96,12 +103,12 @@ export default function PowerCharts({ solarData, batteryData, solarParamsData, a
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Battery & Load</CardTitle>
-          <CardDescription>Today's battery level and load consumption.</CardDescription>
+          <CardTitle>Battery Status</CardTitle>
+          <CardDescription>Today's battery level.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfigBatteryLoad} className="h-[250px] w-full">
-            <BarChart data={batteryData} margin={{ left: -20, right: -20 }}>
+          <ChartContainer config={chartConfigBattery} className="h-[250px] w-full">
+            <BarChart data={batteryData} margin={{ left: -20, right: 10 }}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="time"
@@ -111,11 +118,9 @@ export default function PowerCharts({ solarData, batteryData, solarParamsData, a
                 fontSize={12}
               />
               <YAxis yAxisId="left" orientation="left" stroke="var(--color-battery)" tickLine={false} axisLine={false} unit="%" fontSize={12} />
-              <YAxis yAxisId="right" orientation="right" stroke="var(--color-load)" tickLine={false} axisLine={false} unit="kW" fontSize={12} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
               <Bar dataKey="battery" yAxisId="left" fill="var(--color-battery)" radius={4} />
-              <Bar dataKey="load" yAxisId="right" fill="var(--color-load)" radius={4} />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -126,7 +131,7 @@ export default function PowerCharts({ solarData, batteryData, solarParamsData, a
           <CardDescription>Real-time solar voltage and current.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfigVoltageCurrent} className="h-[250px] w-full">
+          <ChartContainer config={chartConfigInverter} className="h-[250px] w-full">
             <LineChart data={solarParamsData} margin={{ left: -20, right: 10 }}>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -149,11 +154,11 @@ export default function PowerCharts({ solarData, batteryData, solarParamsData, a
       <Card>
         <CardHeader>
           <CardTitle>Inverter Parameters</CardTitle>
-          <CardDescription>Real-time inverter voltage and current.</CardDescription>
+          <CardDescription>Real-time inverter voltage, current, and system load.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfigVoltageCurrent} className="h-[250px] w-full">
-            <LineChart data={acParamsData} margin={{ left: -20, right: 10 }}>
+          <ChartContainer config={chartConfigInverter} className="h-[250px] w-full">
+            <ComposedChart data={combinedInverterData} margin={{ left: -20, right: 10 }}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="time"
@@ -164,11 +169,13 @@ export default function PowerCharts({ solarData, batteryData, solarParamsData, a
               />
               <YAxis yAxisId="left" orientation="left" stroke="var(--color-voltage)" tickLine={false} axisLine={false} unit="V" fontSize={12} />
               <YAxis yAxisId="right" orientation="right" stroke="var(--color-current)" tickLine={false} axisLine={false} unit="A" fontSize={12} />
+              <YAxis yAxisId="load" orientation="right" stroke="var(--color-load)" tickLine={false} axisLine={false} unit="kW" domain={[0, 'dataMax + 2']} hide={true} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
               <Line dataKey="voltage" type="monotone" yAxisId="left" stroke="var(--color-voltage)" strokeWidth={2} dot={false} />
               <Line dataKey="current" type="monotone" yAxisId="right" stroke="var(--color-current)" strokeWidth={2} dot={false} />
-            </LineChart>
+              <Line dataKey="load" type="monotone" yAxisId="load" stroke="var(--color-load)" strokeWidth={2} dot={false} />
+            </ComposedChart>
           </ChartContainer>
         </CardContent>
       </Card>
