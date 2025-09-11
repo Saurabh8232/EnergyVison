@@ -96,30 +96,6 @@ export default async function DashboardPage() {
           />
         </div>
 
-        <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-4">Inverter Parameters</h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                 <StatCard
-                    title="Inverter Voltage"
-                    value={`${metrics.inverterVoltage}V`}
-                    icon={Power}
-                    description="Real-time AC voltage"
-                />
-                <StatCard
-                    title="Inverter Current"
-                    value={`${metrics.inverterCurrent}A`}
-                    icon={Bolt}
-                    description="Real-time AC current"
-                />
-                <StatCard
-                    title="Power Factor"
-                    value={metrics.powerFactor?.toString() ?? 'N/A'}
-                    icon={Zap}
-                    description="Efficiency of power usage"
-                />
-            </div>
-        </div>
-
         <PowerCharts
           solarData={solarGenerationData}
           batteryData={batteryLoadData}
