@@ -1,11 +1,29 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import PredictionChart from '@/components/predictions/prediction-chart';
-import { predictionData as staticPredictionData } from '@/lib/data';
-import type { PredictionData } from '@/lib/types';
+import { staticDashboardData } from '@/lib/data';
+import type { DashboardData, PredictionData } from '@/lib/types';
+import { headers } from 'next/headers';
 
 async function getPredictionData(): Promise<PredictionData[]> {
-  // In a real app, you'd fetch this from your API
-  return Promise.resolve(staticPredictionData);
+  try {
+    const host = headers().get('host') || 'localhost:9002';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const url = `${protocol}://${host}/api/dashboard-data`;
+
+    const response = await fetch(url, {
+      next: { revalidate: 1 } // Re-fetch data very frequently.
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch prediction data, status:', response.status);
+      return staticDashboardData.predictionData; // Fallback to static data
+    }
+    const data: DashboardData = await response.json();
+    return data.predictionData;
+  } catch (error) {
+    console.error('API call failed, returning static data:', error);
+    return staticDashboardData.predictionData;
+  }
 }
 
 export default async function PredictionsPage() {

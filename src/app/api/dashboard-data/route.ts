@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import type { DashboardData, Alert } from '@/lib/types';
+import type { DashboardData, Alert, PredictionData } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
 import { format } from 'date-fns';
 
@@ -53,6 +53,15 @@ const generateRandomDashboardData = (): DashboardData => {
     randomizeLastPoint(data.solarParametersData, 'current', 1, 11);
     randomizeLastPoint(data.acParametersData, 'voltage', 220, 240);
     randomizeLastPoint(data.acParametersData, 'current', 5, 11);
+
+    // Randomize prediction data
+    data.predictionData.forEach((point: PredictionData) => {
+        if (point.actual) {
+            point.actual = getRandomValue(point.actual * 0.95, point.actual * 1.05);
+        }
+        point.predicted = getRandomValue(point.predicted * 0.95, point.predicted * 1.05);
+    });
+
 
     // ~20% chance to add a new alert to simulate real-time events.
     if (Math.random() < 0.2) {
