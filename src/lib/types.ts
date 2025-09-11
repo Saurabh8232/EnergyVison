@@ -3,7 +3,6 @@ export type Device = {
   name: string;
   status: 'Connected' | 'Disconnected';
   type: string;
-  webServerStatus: 'Online' | 'Offline';
 };
 
 export type TimeSeriesData = {

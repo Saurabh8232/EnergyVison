@@ -6,21 +6,18 @@ export const devices: Device[] = [
     name: 'ESP32 Main', 
     status: 'Connected', 
     type: 'Microcontroller',
-    webServerStatus: 'Online',
   },
   {
     id: 'esp32-essential',
     name: 'Essential ESP32',
     status: 'Connected',
     type: 'Microcontroller',
-    webServerStatus: 'Online',
   },
   {
     id: 'esp32-non-essential',
     name: 'Non-Essential ESP32',
     status: 'Disconnected',
     type: 'Microcontroller',
-    webServerStatus: 'Offline',
   }
 ];
 

@@ -34,7 +34,6 @@ export default function DeviceList({ devices: initialDevices }: DeviceListProps)
                   <TableHead className="w-[180px]">Status</TableHead>
                   <TableHead>Device Name</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Web Server</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -52,15 +51,6 @@ export default function DeviceList({ devices: initialDevices }: DeviceListProps)
                     <TableCell className="font-medium">{device.name}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{device.type}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "h-2.5 w-2.5 rounded-full",
-                          device.webServerStatus === 'Online' ? 'bg-green-500' : 'bg-red-500'
-                        )}></span>
-                        <span>{device.webServerStatus}</span>
-                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
