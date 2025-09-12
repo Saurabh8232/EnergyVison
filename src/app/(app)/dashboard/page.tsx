@@ -16,7 +16,7 @@ async function getDashboardData(): Promise<DashboardData> {
       const url = `${protocol}://${host}/api/dashboard-data`;
       
       const response = await fetch(url, {
-        next: { revalidate: 1 } // Re-fetch data very frequently.
+        next: { revalidate: 30 } // Re-fetch data every 30 seconds.
       });
 
       if (!response.ok) {
