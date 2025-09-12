@@ -2,10 +2,6 @@ import { NextResponse } from 'next/server';
 import type { DashboardData, Alert, PredictionData, Device } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
 
-// Use a simple in-memory variable to store the latest dashboard data.
-// In a real production app, you would use a database like Firestore or Redis.
-let latestDashboardData: DashboardData = JSON.parse(JSON.stringify(staticDashboardData));
-
 // A pool of potential alerts to be triggered by incoming data.
 const alertPool: Omit<Alert, 'id' | 'timestamp'>[] = [
     { level: 'critical', message: 'Overload: System load exceeds capacity.' },
@@ -17,18 +13,31 @@ const alertPool: Omit<Alert, 'id' | 'timestamp'>[] = [
     { level: 'critical', message: 'Battery critically low – Discharge risk.' },
 ];
 
-// This function will now be called from the POST request to process incoming data
-// and decide if an alert needs to be generated.
-const processIncomingData = (newData: Partial<DashboardData>) => {
+class DataStore {
+  private static instance: DataStore;
+  private data: DashboardData;
+
+  private constructor() {
+    // Initialize with a deep copy of the static data
+    this.data = JSON.parse(JSON.stringify(staticDashboardData));
+  }
+
+  public static getInstance(): DataStore {
+    if (!DataStore.instance) {
+      DataStore.instance = new DataStore();
+    }
+    return DataStore.instance;
+  }
+
+  public getData(): DashboardData {
+    return this.data;
+  }
+
+  public updateData(newData: Partial<DashboardData>) {
     // Merge the new data with the existing data
-    const updatedData = { ...latestDashboardData, ...newData };
+    const updatedData = { ...this.data, ...newData, metrics: {...this.data.metrics, ...newData.metrics} };
 
     // Example logic for triggering an alert.
-    // In a real app, you'd have more sophisticated rules here based on the `newData`.
-    // For simulation, we'll still use a random chance, but this is where your
-    // specific alert logic would go. For example:
-    // if (newData.metrics && newData.metrics.batteryPercentage < 20) { ... }
-
     if (Math.random() < 0.2) { // ~20% chance to add an alert on new data
         const randomAlert = alertPool[Math.floor(Math.random() * alertPool.length)];
         const newAlert: Alert = {
@@ -36,23 +45,27 @@ const processIncomingData = (newData: Partial<DashboardData>) => {
             id: `alert-${Date.now()}-${Math.random()}`,
             timestamp: new Date().toISOString(),
         };
-        updatedData.alerts.push(newAlert);
+        // Add to the beginning of the array to show newest first
+        updatedData.alerts.unshift(newAlert);
 
         // Keep the total number of alerts from growing indefinitely.
         if (updatedData.alerts.length > 20) {
-            updatedData.alerts.shift();
+            updatedData.alerts.pop();
         }
     }
 
-    // Update the global state
-    latestDashboardData = updatedData;
-};
+    // Update the store's data
+    this.data = updatedData;
+  }
+}
+
+const dataStore = DataStore.getInstance();
 
 export async function GET() {
   // This endpoint is called by the frontend to get the most recent data.
   // It now returns the latest data that was POSTed by the external server.
   try {
-    return NextResponse.json(latestDashboardData);
+    return NextResponse.json(dataStore.getData());
   } catch (error) {
     console.error('Error serving dashboard data:', error);
     // If there's an error, fall back to the initial static data.
@@ -67,7 +80,7 @@ export async function POST(request: Request) {
     console.log("Received data from external server:", newData);
 
     // Process the new data, update the `latestDashboardData`, and generate alerts if needed.
-    processIncomingData(newData);
+    dataStore.updateData(newData);
     
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200 });
   } catch (error) {
