@@ -19,12 +19,30 @@ async function getAlerts(): Promise<Alert[]> {
       return [];
     }
     const data: DashboardData = await response.json();
-    return data.alerts ? data.alerts.reverse() : [];
+    // Firebase `push` creates an object with unique keys, not an array.
+    // We need to convert this object into an array.
+    if (data.alerts) {
+        return Object.values(data.alerts).reverse();
+    }
+    return [];
   } catch (error) {
     console.error('API call failed, returning empty array:', error);
     return [];
   }
 }
+
+const alertIcons = {
+  info: <Info className="h-5 w-5" />,
+  warning: <AlertTriangle className="h-5 w-5" />,
+  critical: <ShieldAlert className="h-5 w-5" />,
+};
+
+const alertColors = {
+  info: 'border-blue-500/50 bg-blue-500/10',
+  warning: 'border-yellow-500/50 bg-yellow-500/10',
+  critical: 'border-red-500/50 bg-red-500/10',
+};
+
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
