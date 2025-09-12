@@ -16,30 +16,37 @@ async function initializeData() {
 
 export async function GET() {
   try {
-    await initializeData(); // Ensure data is initialized on GET
     const snapshot = await get(dbRef);
     if (snapshot.exists()) {
       return NextResponse.json(snapshot.val());
     } else {
-      // This case should ideally not be hit if initializeData works
+      // If no data, initialize and return static as a fallback for the first time.
+      await set(dbRef, staticDashboardData);
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
     console.error('Error fetching data from Firebase:', error);
-    return NextResponse.json({ message: 'Error fetching data' }, { status: 500 });
+    // Return a more specific error message to help debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ message: `Error fetching data: ${errorMessage}` }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    await initializeData(); // Ensure data is initialized on POST
     const newData = await request.json();
     console.log("Received data from external server:", newData);
 
     // Get current data from Firebase
     const snapshot = await get(dbRef);
-    const currentData = snapshot.exists() ? snapshot.val() : staticDashboardData;
-
+    let currentData;
+    if (snapshot.exists()) {
+        currentData = snapshot.val();
+    } else {
+        // If for some reason data doesn't exist, start with static data.
+        currentData = staticDashboardData;
+    }
+    
     // A pool of potential alerts to be triggered by incoming data.
     const alertPool: Omit<import('@/lib/types').Alert, 'id' | 'timestamp'>[] = [
         { level: 'critical', message: 'Overload: System load exceeds capacity.' },
