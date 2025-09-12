@@ -18,7 +18,7 @@ async function getPredictionData(): Promise<PredictionData[]> {
       return staticDashboardData.predictionData;
     }
     const data: DashboardData = await response.json();
-    return data.predictionData;
+    return data.predictionData || staticDashboardData.predictionData;
   } catch (error) {
     console.error('API call failed, returning static data:', error);
     return staticDashboardData.predictionData;
@@ -31,7 +31,6 @@ export default function PredictionsPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            setLoading(true);
             const data = await getPredictionData();
             setPredictionData(data);
             setLoading(false);

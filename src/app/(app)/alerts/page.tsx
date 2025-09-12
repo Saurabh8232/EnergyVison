@@ -8,18 +8,6 @@ import type { Alert, DashboardData } from '@/lib/types';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const alertIcons = {
-  info: <Info className="h-5 w-5 text-blue-500" />,
-  warning: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
-  critical: <ShieldAlert className="h-5 w-5 text-red-500" />,
-};
-
-const alertColors = {
-  info: 'border-blue-500/50 bg-blue-500/10',
-  warning: 'border-yellow-500/50 bg-yellow-500/10',
-  critical: 'border-destructive/50 bg-destructive/10 text-destructive-foreground',
-};
-
 async function getAlerts(): Promise<Alert[]> {
   try {
     const response = await fetch('/api/dashboard-data', {
@@ -31,7 +19,7 @@ async function getAlerts(): Promise<Alert[]> {
       return [];
     }
     const data: DashboardData = await response.json();
-    return data.alerts.reverse();
+    return data.alerts ? data.alerts.reverse() : [];
   } catch (error) {
     console.error('API call failed, returning empty array:', error);
     return [];
@@ -44,7 +32,6 @@ export default function AlertsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const alertData = await getAlerts();
       setAlerts(alertData);
       setLoading(false);
@@ -73,7 +60,7 @@ export default function AlertsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {alerts.map((alert) => {
+              {alerts.length > 0 ? alerts.map((alert) => {
                   const alertDate = new Date(alert.timestamp);
                   return (
                       <div key={alert.id} className={cn('flex items-start gap-4 rounded-lg border p-4', alertColors[alert.level])}>
@@ -89,7 +76,7 @@ export default function AlertsPage() {
                           </div>
                       </div>
                   );
-              })}
+              }) : <p>No alerts to display.</p>}
             </div>
           )}
         </CardContent>

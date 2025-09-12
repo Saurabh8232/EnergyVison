@@ -29,7 +29,6 @@ export default function DevicesPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const deviceData = await getDevices();
       setDevices(deviceData);
       setLoading(false);

@@ -27,14 +27,11 @@ async function getDashboardData(): Promise<DashboardData> {
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const dashboardData = await getDashboardData();
       setData(dashboardData);
-      setLoading(false);
     };
 
     fetchData();
@@ -44,7 +41,7 @@ export default function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || !data) {
+  if (!data) {
     return (
       <main className="flex-1 overflow-auto p-4 md:p-6">
         <div className="grid gap-6">
