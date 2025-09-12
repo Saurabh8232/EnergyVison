@@ -14,16 +14,14 @@ async function initializeData() {
     }
 }
 
-initializeData();
-
 export async function GET() {
   try {
+    await initializeData(); // Ensure data is initialized on GET
     const snapshot = await get(dbRef);
     if (snapshot.exists()) {
       return NextResponse.json(snapshot.val());
     } else {
-      // If no data, initialize and return static data
-      await set(dbRef, staticDashboardData);
+      // This case should ideally not be hit if initializeData works
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
@@ -34,6 +32,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await initializeData(); // Ensure data is initialized on POST
     const newData = await request.json();
     console.log("Received data from external server:", newData);
 
