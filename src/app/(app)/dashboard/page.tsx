@@ -9,10 +9,16 @@ import { staticDashboardData } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 async function getDashboardData(): Promise<DashboardData> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+
   try {
     const response = await fetch('/api/dashboard-data', {
-      cache: 'no-store'
+      signal: controller.signal,
+      cache: 'no-store',
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error('Failed to fetch dashboard data, status:', response.status);
@@ -20,7 +26,11 @@ async function getDashboardData(): Promise<DashboardData> {
     }
     return await response.json();
   } catch (error) {
-    console.error('API call failed, returning static data:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.log('API call timed out, returning static data.');
+    } else {
+      console.error('API call failed, returning static data:', error);
+    }
     return staticDashboardData;
   }
 }
