@@ -13,14 +13,14 @@ export async function GET() {
     if (snapshot.exists()) {
       return NextResponse.json(snapshot.val());
     } else {
-      // If no data, initialize and return static as a fallback for the first time.
-      await set(dbRef, staticDashboardData);
+      // If no data, return static data as a fallback.
+      // The POST handler will create the initial entry.
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
     console.error('Error fetching data from Firebase:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ message: `Error fetching data: ${errorMessage}` }, { status: 500 });
+    // If there's an error, return static data to prevent the app from crashing.
+    return NextResponse.json(staticDashboardData);
   }
 }
 
@@ -30,7 +30,6 @@ export async function POST(request: Request) {
     console.log("Received data from external server:", newData);
 
     // Use update() for a more efficient, partial update.
-    // This avoids reading the entire database first.
     await update(dbRef, newData);
 
     // A pool of potential alerts to be triggered by incoming data.
@@ -54,7 +53,6 @@ export async function POST(request: Request) {
         };
 
         // Use push() to add a new alert without overwriting others.
-        // This is a transaction-safe operation.
         const alertsRef = ref(database, 'dashboardData/alerts');
         await push(alertsRef, newAlert);
     }
