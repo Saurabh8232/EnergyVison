@@ -1,34 +1,54 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import DeviceList from '@/components/devices/device-list';
 import type { DashboardData, Device } from '@/lib/types';
-import { headers } from 'next/headers';
+import { Skeleton } from '@/components/ui/skeleton';
 
 async function getDevices(): Promise<Device[]> {
   try {
-    const host = headers().get('host') || 'localhost:9002';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const url = `${protocol}://${host}/api/dashboard-data`;
-
-    const response = await fetch(url, {
-      cache: 'no-store' // Ensure fresh data is fetched on every request
+    const response = await fetch('/api/dashboard-data', {
+      cache: 'no-store'
     });
 
     if (!response.ok) {
       console.error('Failed to fetch devices, status:', response.status);
-      return []; // Fallback to empty array
+      return [];
     }
     const data: DashboardData = await response.json();
-    return data.devices || []; // Ensure an array is returned
+    return data.devices || [];
   } catch (error) {
     console.error('API call failed, returning empty array:', error);
-    return []; // Fallback to empty array
+    return [];
   }
 }
 
-export default async function DevicesPage() {
-  const devices = await getDevices();
+export default function DevicesPage() {
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const deviceData = await getDevices();
+      setDevices(deviceData);
+      setLoading(false);
+    };
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <main className="flex-1 overflow-auto p-4 md:p-6">
-      <DeviceList devices={devices} />
+       {loading ? (
+        <Skeleton className="h-[400px] w-full" />
+      ) : (
+        <DeviceList devices={devices} />
+      )}
     </main>
   );
 }

@@ -1,22 +1,21 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import PredictionChart from '@/components/predictions/prediction-chart';
 import { staticDashboardData } from '@/lib/data';
 import type { DashboardData, PredictionData } from '@/lib/types';
-import { headers } from 'next/headers';
+import { Skeleton } from '@/components/ui/skeleton';
 
 async function getPredictionData(): Promise<PredictionData[]> {
   try {
-    const host = headers().get('host') || 'localhost:9002';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const url = `${protocol}://${host}/api/dashboard-data`;
-
-    const response = await fetch(url, {
-      cache: 'no-store' // Ensure fresh data is fetched on every request
+    const response = await fetch('/api/dashboard-data', {
+      cache: 'no-store'
     });
 
     if (!response.ok) {
       console.error('Failed to fetch prediction data, status:', response.status);
-      return staticDashboardData.predictionData; // Fallback to static data
+      return staticDashboardData.predictionData;
     }
     const data: DashboardData = await response.json();
     return data.predictionData;
@@ -26,8 +25,25 @@ async function getPredictionData(): Promise<PredictionData[]> {
   }
 }
 
-export default async function PredictionsPage() {
-    const predictionData = await getPredictionData();
+export default function PredictionsPage() {
+    const [predictionData, setPredictionData] = useState<PredictionData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            const data = await getPredictionData();
+            setPredictionData(data);
+            setLoading(false);
+        };
+
+        fetchData();
+
+        const interval = setInterval(fetchData, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
+
   return (
     <main className="flex-1 overflow-auto p-4 md:p-6">
        <Card>
@@ -38,7 +54,11 @@ export default async function PredictionsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <PredictionChart data={predictionData} />
+            {loading ? (
+                <Skeleton className="h-[300px] w-full" />
+            ) : (
+                <PredictionChart data={predictionData} />
+            )}
         </CardContent>
       </Card>
     </main>
