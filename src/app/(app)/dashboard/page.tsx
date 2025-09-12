@@ -1,45 +1,71 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import { Sun, Cloud, CloudRain, Wind, MapPin, Zap, Battery, Power, Bolt } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import type { DashboardData } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
-import { headers } from 'next/headers';
+import { Skeleton } from '@/components/ui/skeleton';
 
 async function getDashboardData(): Promise<DashboardData> {
-  // This function fetches data from the app's own API route.
-  // This ensures there are no CORS issues after deployment.
   try {
-      // Construct the absolute URL for the API endpoint.
-      // This is necessary for server-side fetching.
-      const host = headers().get('host') || 'localhost:9002';
-      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-      const url = `${protocol}://${host}/api/dashboard-data`;
-      
-      const response = await fetch(url, {
-        cache: 'no-store' // Ensure fresh data is fetched on every request
-      });
+    const response = await fetch('/api/dashboard-data', {
+      cache: 'no-store'
+    });
 
-      if (!response.ok) {
-        console.error('Failed to fetch dashboard data, status:', response.status);
-        return staticDashboardData; // Fallback to static data on error
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('API call failed, returning static data:', error);
-      // In case of a network error or if the fetch fails completely.
+    if (!response.ok) {
+      console.error('Failed to fetch dashboard data, status:', response.status);
       return staticDashboardData;
     }
+    return await response.json();
+  } catch (error) {
+    console.error('API call failed, returning static data:', error);
+    return staticDashboardData;
+  }
 }
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const dashboardData = await getDashboardData();
+      setData(dashboardData);
+      setLoading(false);
+    };
+
+    fetchData();
+
+    const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <main className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="grid gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="h-[126px] w-full" />
+            ))}
+          </div>
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      </main>
+    );
+  }
+
   const { 
     solarGenerationData, 
     batteryLoadData,
     solarParametersData,
     acParametersData,
     metrics,
-  } = await getDashboardData();
-
+  } = data;
 
   return (
     <main className="flex-1 overflow-auto p-4 md:p-6">

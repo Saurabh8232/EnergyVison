@@ -79,10 +79,61 @@ export async function POST(request: Request) {
     const newData = await request.json();
     console.log("Received data from external server:", newData);
 
-    // Process the new data, update the `latestDashboardData`, and generate alerts if needed.
-    dataStore.updateData(newData);
+    // Filter the newData object to only include keys that are defined in the DashboardData type
+    const allowedKeys: (keyof DashboardData)[] = [
+      'solarGenerationData',
+      'batteryLoadData',
+      'solarParametersData',
+      'acParametersData',
+      'predictionData',
+      'alerts',
+      'devices',
+      'metrics',
+    ];
+
+    const filteredData: Partial<DashboardData> = {};
+    for (const key of allowedKeys) {
+      if (newData.hasOwnProperty(key)) {
+        (filteredData as any)[key] = newData[key];
+      }
+    }
     
-    return NextResponse.json({ message: 'Data received successfully' }, { status: 200 });
+    // If metrics are present, filter them as well
+    if (newData.metrics) {
+      const allowedMetricsKeys: (keyof import('@/lib/types').DashboardMetrics)[] = [
+        'windSpeed',
+        'cloudCoverage',
+        'rain',
+        'latitude',
+        'longitude',
+        'solarPower',
+        'energyGeneration',
+        'energyConsumption',
+        'inverterVoltage',
+        'inverterCurrent',
+        'batteryPercentage',
+        'powerFactor',
+      ];
+      
+      const filteredMetrics: Partial<import('@/lib/types').DashboardMetrics> = {};
+      for (const key of allowedMetricsKeys) {
+        if (newData.metrics.hasOwnProperty(key)) {
+          (filteredMetrics as any)[key] = newData.metrics[key];
+        }
+      }
+      filteredData.metrics = { ...dataStore.getData().metrics, ...filteredMetrics };
+    }
+
+    // Process the new data, update the `latestDashboardData`, and generate alerts if needed.
+    dataStore.updateData(filteredData);
+    
+    const headers = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    };
+
+    return NextResponse.json({ message: 'Data received successfully' }, { status: 200, headers });
   } catch (error) {
     console.error('Error processing incoming data:', error);
     return NextResponse.json({ message: 'Invalid data format' }, { status: 400 });
