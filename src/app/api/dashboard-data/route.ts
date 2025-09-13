@@ -9,21 +9,74 @@ export const maxDuration = 25;
 
 const dbRef = ref(database, 'dashboardData');
 
-export async function GET() {
-  try {
-    const snapshot = await get(dbRef);
-    if (snapshot.exists()) {
-      return NextResponse.json(snapshot.val());
-    } else {
-      // If no data exists, initialize with static data and return it.
-      await set(dbRef, staticDashboardData);
-      return NextResponse.json(staticDashboardData);
+// Helper function to generate random data
+const generateRandomData = (): DashboardData => {
+  const now = new Date();
+  const hours = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(now.getTime() - (11 - i) * 2 * 60 * 60 * 1000);
+    return `${d.getHours().toString().padStart(2, '0')}:00`;
+  });
+
+  const randomFloat = (min: number, max: number, decimals: number = 2) => {
+    return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
+  };
+
+  const solarGenerationData = hours.map(time => ({
+    time,
+    power: time.substring(0, 2) >= '06' && time.substring(0, 2) <= '20' ? randomFloat(0, 4.5) : 0,
+  }));
+
+  const batteryLoadData = hours.map(time => ({
+    time,
+    battery: randomFloat(40, 95),
+    load: randomFloat(1.0, 3.0),
+  }));
+
+  const solarParametersData = hours.map(time => ({
+      time,
+      voltage: time.substring(0, 2) >= '06' && time.substring(0, 2) <= '20' ? randomFloat(350, 410) : 0,
+      current: time.substring(0, 2) >= '06' && time.substring(0, 2) <= '20' ? randomFloat(1, 11) : 0,
+  }));
+
+  const acParametersData = hours.map(time => ({
+      time,
+      voltage: randomFloat(220, 240),
+      current: randomFloat(5, 11),
+  }));
+
+  const predictionData = staticDashboardData.predictionData.map((d, i) => ({
+    ...d,
+    actual: d.actual ? randomFloat(2.0, 4.5) : undefined,
+    predicted: randomFloat(2.0, 4.5),
+  }));
+
+  return {
+    solarGenerationData,
+    batteryLoadData,
+    solarParametersData,
+    acParametersData,
+    predictionData,
+    alerts: staticDashboardData.alerts.map(a => ({...a, timestamp: new Date().toISOString()})).sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * staticDashboardData.alerts.length)),
+    devices: staticDashboardData.devices,
+    metrics: {
+      windSpeed: randomFloat(0, 15),
+      cloudCoverage: randomFloat(0, 100),
+      rain: randomFloat(0, 5),
+      latitude: 34.0522,
+      longitude: -118.2437,
+      solarPower: randomFloat(0, 5),
+      energyGeneration: randomFloat(10, 25),
+      energyConsumption: randomFloat(3, 8),
+      inverterVoltage: randomFloat(220, 240),
+      inverterCurrent: randomFloat(5, 11),
+      batteryPercentage: randomFloat(40, 95),
+      powerFactor: randomFloat(0.95, 1.0),
     }
-  } catch (error) {
-    console.error('Error fetching data from Firebase:', error);
-    // Fallback to static data in case of an error
-    return NextResponse.json(staticDashboardData, { status: 500 });
-  }
+  };
+};
+
+export async function GET() {
+    return NextResponse.json(generateRandomData());
 }
 
 export async function POST(request: Request) {
