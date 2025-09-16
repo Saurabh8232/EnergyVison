@@ -47,9 +47,9 @@ export async function POST(request: Request) {
     
     const newData = validation.data;
 
-    // Use set() for a fast, direct overwrite. This is much more efficient
-    // than update() and prevents timeouts.
-    await set(dbRef, newData);
+    // Use set() for a fast, direct overwrite. Do not await this operation.
+    // This allows the response to be sent immediately, preventing timeouts.
+    set(dbRef, newData);
 
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200, headers });
     
