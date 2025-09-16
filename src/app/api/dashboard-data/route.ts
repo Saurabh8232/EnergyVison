@@ -1,8 +1,8 @@
 
 import { NextResponse } from 'next/server';
-import { get, ref, update, push, set } from 'firebase/database';
+import { get, ref, update, push } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import type { DashboardData, Alert, TimeSeriesData, PredictionData, Device, DashboardMetrics } from '@/lib/types';
+import type { Alert } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
 import { z } from 'zod';
 
@@ -23,8 +23,8 @@ export async function GET() {
     if (snapshot.exists()) {
       return NextResponse.json(snapshot.val());
     } else {
-      // If no data, return the static data as a starting point
-      await set(dbRef, staticDashboardData);
+      // If no data, return the static data as a fallback.
+      // Do not write to the DB in a GET request.
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
