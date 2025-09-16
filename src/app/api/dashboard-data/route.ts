@@ -19,13 +19,11 @@ export async function GET() {
     if (snapshot.exists()) {
       return NextResponse.json(snapshot.val());
     } else {
-      // If no data, return static data without writing to DB
       await set(dbRef, staticDashboardData);
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
     console.error('Firebase read failed:', error);
-    // On error, fall back to static data
     return NextResponse.json(staticDashboardData, { status: 500 });
   }
 }
@@ -62,8 +60,7 @@ export function OPTIONS() {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-control-allow-headers': 'Content-Type',
   };
   return new Response(null, { status: 204, headers });
 }
-

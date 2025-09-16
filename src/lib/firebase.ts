@@ -10,7 +10,7 @@ const firebaseConfig = {
   "authDomain": "energyvision-l60un.firebaseapp.com",
   "measurementId": "",
   "messagingSenderId": "493264983763",
-  "databaseURL": "https://energyvision-l60un-default-rtdb.firebaseio.com/"
+  "databaseURL": "https://energy-vison-l60un-default-rtdb.firebaseio.com/"
 };
 
 // Initialize Firebase
@@ -18,4 +18,5 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const database = getDatabase(app);
 
 export { app, database };
+
 
