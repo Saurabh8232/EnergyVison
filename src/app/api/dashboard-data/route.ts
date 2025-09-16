@@ -19,10 +19,12 @@ export async function GET() {
     if (snapshot.exists()) {
       return NextResponse.json(snapshot.val());
     } else {
+      // If no data, return static data without writing to DB
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
     console.error('Firebase read failed:', error);
+    // On error, fall back to static data
     return NextResponse.json(staticDashboardData, { status: 500 });
   }
 }
@@ -40,12 +42,13 @@ export async function POST(request: Request) {
     const validation = IncomingDataSchema.safeParse(rawData);
     if (!validation.success) {
         console.error("Invalid data format received:", validation.error);
-        return NextResponse.json({ message: 'Invalid data format. "metrics" object is required.' }, { status: 400, headers });
+        return NextResponse.json({ message: 'Invalid data format.' }, { status: 400, headers });
     }
     
     const newData = validation.data;
 
-    // Use set() for a more efficient overwrite instead of update()
+    // Use set() for a fast, direct overwrite. This is much more efficient
+    // than update() and prevents timeouts.
     await set(dbRef, newData);
 
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200, headers });
