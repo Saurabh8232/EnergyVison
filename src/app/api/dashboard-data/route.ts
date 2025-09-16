@@ -20,6 +20,7 @@ export async function GET() {
       return NextResponse.json(snapshot.val());
     } else {
       // If no data, return static data without writing to DB
+      await set(dbRef, staticDashboardData);
       return NextResponse.json(staticDashboardData);
     }
   } catch (error) {
@@ -65,3 +66,4 @@ export function OPTIONS() {
   };
   return new Response(null, { status: 204, headers });
 }
+
