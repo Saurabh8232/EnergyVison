@@ -57,30 +57,9 @@ export async function POST(request: Request) {
     // Efficiently update only the specified fields in Firebase
     await update(dbRef, newData);
 
-    // Handle alerts separately using push to avoid race conditions
-    const alertPool: Omit<Alert, 'id' | 'timestamp'>[] = [
-        { level: 'critical', message: 'Overload: System load exceeds capacity.' },
-        { level: 'warning', message: 'High Load Warning: System load is approaching maximum capacity.' },
-        { level: 'info', message: 'Load Normal: System load has returned to normal levels.' },
-        { level: 'critical', message: 'Solar generating but battery not charging. Check connections.' },
-        { level: 'warning', message: 'Strong sunlight but panel underperforming.' },
-        { level: 'info', message: 'Sudden drop in sunlight detected. Potential cloud cover.' },
-        { level: 'critical', message: 'Battery critically low – Discharge risk.' },
-    ];
-    
-    // ~20% chance to add an alert on new data
-    if (Math.random() < 0.2) { 
-        const randomAlert = alertPool[Math.floor(Math.random() * alertPool.length)];
-        const newAlert: Alert = {
-            ...randomAlert,
-            id: `alert-${Date.now()}-${Math.random()}`,
-            timestamp: new Date().toISOString(),
-        };
-        const alertsRef = ref(database, 'dashboardData/alerts');
-        await push(alertsRef, newAlert);
-    }
-
+    // Immediately respond to the client to avoid timeouts.
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200, headers });
+    
   } catch (error) {
     console.error('Error processing incoming data:', error);
     return NextResponse.json({ message: 'Error processing data' }, { status: 500, headers });
