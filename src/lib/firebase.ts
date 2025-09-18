@@ -3,13 +3,13 @@ import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  "projectId": "energyvison-l60un",
+  "appId": "1:493264983763:web:82868beb596aa1887a2d48c",
+  "storageBucket": "energyvison-l60un.appspot.com",
+  "apiKey": "YOUR_API_KEY",
+  "authDomain": "energyvison-l60un.firebaseapp.com",
+  "databaseURL": "https://energyvison-l60un-default-rtdb.firebaseio.com/",
+  "messagingSenderId": "493264983763"
 };
 
 let app;
