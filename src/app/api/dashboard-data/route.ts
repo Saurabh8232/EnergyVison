@@ -24,7 +24,7 @@ export async function GET() {
     }
   } catch (error) {
     console.error('Firebase read failed:', error);
-    return NextResponse.json(staticDashboardData, { status: 200 });
+    return NextResponse.json(staticDashboardData, { status: 500 });
   }
 }
 
