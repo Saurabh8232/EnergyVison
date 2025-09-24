@@ -1,31 +1,43 @@
 import { NextResponse } from 'next/server';
-import { get, ref } from 'firebase/database';
+import { ref, onValue, set } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import { staticDashboardData } from '@/lib/data';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 25;
 
 const dbRef = ref(database, 'dashboardData');
 
 const IncomingDataSchema = z.object({
   metrics: z.record(z.any()).optional(),
-}).passthrough();
+}).strict();
 
 export async function GET() {
-  try {
-    const snapshot = await get(dbRef);
-    if (snapshot.exists()) {
-      return NextResponse.json(snapshot.val());
-    } else {
-      return NextResponse.json(staticDashboardData);
-    }
-  } catch (error) {
-    console.error('Firebase read failed:', error);
-    // Return static data with a 200 OK status to prevent client-side errors
-    return NextResponse.json(staticDashboardData, { status: 200 });
-  }
+  const stream = new ReadableStream({
+    start(controller) {
+      const unsubscribe = onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+        controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
+      }, (error) => {
+        console.error('Firebase read failed:', error);
+        controller.enqueue(`data: ${JSON.stringify(staticDashboardData)}\n\n`);
+        controller.close();
+      });
+
+      // When the client closes the connection, unsubscribe from Firebase updates
+      return () => {
+        unsubscribe();
+      };
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
 }
 
 export async function POST(request: Request) {
@@ -46,10 +58,7 @@ export async function POST(request: Request) {
     
     const newData = validation.data;
 
-    // In a real application you would use `set` or `update` here
-    // For this demo, we will log instead of writing to prevent overwrites
-    // await set(dbRef, newData);
-    console.log("Received data, but POST to database is disabled in this demo.");
+    await set(dbRef, newData);
 
 
     return NextResponse.json({ message: 'Data received successfully' }, { status: 200, headers });

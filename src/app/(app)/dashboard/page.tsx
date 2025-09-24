@@ -8,47 +8,27 @@ import type { DashboardData } from '@/lib/types';
 import { staticDashboardData } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
-async function getDashboardData(): Promise<DashboardData> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
-
-  try {
-    const response = await fetch('/api/dashboard-data', {
-      signal: controller.signal,
-      cache: 'no-store',
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.error('Failed to fetch dashboard data, status:', response.status);
-      return staticDashboardData;
-    }
-    return await response.json();
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.log('API call timed out, returning static data.');
-    } else {
-      console.error('API call failed, returning static data:', error);
-    }
-    return staticDashboardData;
-  }
-}
-
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const dashboardData = await getDashboardData();
+    const eventSource = new EventSource('/api/dashboard-data');
+
+    eventSource.onmessage = (event) => {
+      const dashboardData = JSON.parse(event.data);
       setData(dashboardData);
     };
 
-    fetchData();
+    eventSource.onerror = (error) => {
+      console.error('EventSource failed:', error);
+      eventSource.close();
+      // Optionally, set static data on error
+      setData(staticDashboardData);
+    };
 
-    const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   if (!data) {
