@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Cable, TriangleAlert, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Cable, TriangleAlert, TrendingUp, Battery } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,

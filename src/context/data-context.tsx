@@ -32,10 +32,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (dashboardData) {
           setData(dashboardData);
         } else {
+          // Fallback to static data if the received data is empty/null
           setData(staticDashboardData);
         }
       } catch (error) {
-        console.error('Failed to parse dashboard data:', error);
+        console.error('Failed to parse dashboard data, using static data:', error);
         setData(staticDashboardData);
       } finally {
         setLoading(false);
@@ -43,16 +44,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
 
     eventSource.onerror = (error) => {
-      console.error('EventSource failed:', error);
+      console.error('EventSource failed, using static data:', error);
       setData(staticDashboardData);
       setLoading(false);
       eventSource.close();
     };
 
+    // Clean up the connection when the component unmounts
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, []); // The empty dependency array ensures this effect runs only once
 
   const value = { data, loading };
 

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Sun, Cloud, CloudRain, Wind, MapPin, Zap } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Wind, MapPin, Zap, Battery } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
 import { Skeleton } from '@/components/ui/skeleton';
