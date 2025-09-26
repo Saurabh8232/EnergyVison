@@ -4,41 +4,41 @@ import { useState, useEffect } from 'react';
 import DeviceList from '@/components/devices/device-list';
 import type { DashboardData, Device } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-
-async function getDevices(): Promise<Device[]> {
-  try {
-    const response = await fetch('/api/dashboard-data', {
-      cache: 'no-store'
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch devices, status:', response.status);
-      return [];
-    }
-    const data: DashboardData = await response.json();
-    return data.devices || [];
-  } catch (error) {
-    console.error('API call failed, returning empty array:', error);
-    return [];
-  }
-}
+import { staticDashboardData } from '@/lib/data';
 
 export default function DevicesPage() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const deviceData = await getDevices();
-      setDevices(deviceData);
-      setLoading(false);
+    const eventSource = new EventSource('/api/dashboard-data');
+
+    eventSource.onmessage = (event) => {
+      try {
+        const dashboardData: DashboardData = JSON.parse(event.data);
+        if (dashboardData && dashboardData.devices) {
+          setDevices(dashboardData.devices);
+        } else {
+          setDevices(staticDashboardData.devices);
+        }
+      } catch (error) {
+        console.error('Failed to parse dashboard data:', error);
+        setDevices(staticDashboardData.devices);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchData();
+    eventSource.onerror = (error) => {
+      console.error('EventSource failed:', error);
+      setDevices(staticDashboardData.devices);
+      setLoading(false);
+      eventSource.close();
+    };
 
-    const interval = setInterval(fetchData, 30000);
-
-    return () => clearInterval(interval);
+    return () => {
+      eventSource.close();
+    };
   }, []);
   
   return (

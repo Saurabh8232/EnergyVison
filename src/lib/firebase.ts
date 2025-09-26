@@ -8,7 +8,7 @@ const firebaseConfig = {
   "storageBucket": "energyvison-l60un.appspot.com",
   "apiKey": "AIzaSyCAZWHLnyPDARl0Tlm8fhTXS2asEMUYVr0",
   "authDomain": "energyvison-l60un.firebaseapp.com",
-  "databaseURL": "https://energyvison-l60un-default-rtdb.firebaseio.com/",
+  "databaseURL": "https://energyvison-l60un-default-rtdb.asia-southeast1.firebasedatabase.app",
   "messagingSenderId": "493264983763"
 };
 
@@ -19,5 +19,5 @@ if (!getApps().length) {
   app = getApp();
 }
 
-export const database = getDatabase(app);
+export const database = getDatabase(app, firebaseConfig.databaseURL);
 export default app;

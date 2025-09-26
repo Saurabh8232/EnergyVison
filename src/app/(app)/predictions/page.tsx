@@ -7,41 +7,40 @@ import { staticDashboardData } from '@/lib/data';
 import type { DashboardData, PredictionData } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-async function getPredictionData(): Promise<PredictionData[]> {
-  try {
-    const response = await fetch('/api/dashboard-data', {
-      cache: 'no-store'
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch prediction data, status:', response.status);
-      return staticDashboardData.predictionData;
-    }
-    const data: DashboardData = await response.json();
-    return data.predictionData || staticDashboardData.predictionData;
-  } catch (error) {
-    console.error('API call failed, returning static data:', error);
-    return staticDashboardData.predictionData;
-  }
-}
-
 export default function PredictionsPage() {
     const [predictionData, setPredictionData] = useState<PredictionData[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            const data = await getPredictionData();
-            setPredictionData(data);
+        const eventSource = new EventSource('/api/dashboard-data');
+
+        eventSource.onmessage = (event) => {
+          try {
+            const dashboardData: DashboardData = JSON.parse(event.data);
+            if (dashboardData && dashboardData.predictionData) {
+              setPredictionData(dashboardData.predictionData);
+            } else {
+              setPredictionData(staticDashboardData.predictionData);
+            }
+          } catch (error) {
+            console.error('Failed to parse dashboard data:', error);
+            setPredictionData(staticDashboardData.predictionData);
+          } finally {
             setLoading(false);
+          }
         };
-
-        fetchData();
-
-        const interval = setInterval(fetchData, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
+    
+        eventSource.onerror = (error) => {
+          console.error('EventSource failed:', error);
+          setPredictionData(staticDashboardData.predictionData);
+          setLoading(false);
+          eventSource.close();
+        };
+    
+        return () => {
+          eventSource.close();
+        };
+      }, []);
 
   return (
     <main className="flex-1 overflow-auto p-4 md:p-6">

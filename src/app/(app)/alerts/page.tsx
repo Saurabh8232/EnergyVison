@@ -7,29 +7,7 @@ import { cn } from '@/lib/utils';
 import type { Alert, DashboardData } from '@/lib/types';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
-
-async function getAlerts(): Promise<Alert[]> {
-  try {
-    const response = await fetch('/api/dashboard-data', {
-      cache: 'no-store'
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch dashboard data, status:', response.status);
-      return [];
-    }
-    const data: DashboardData = await response.json();
-    // Firebase `push` creates an object with unique keys, not an array.
-    // We need to convert this object into an array.
-    if (data.alerts) {
-        return Object.values(data.alerts).reverse();
-    }
-    return [];
-  } catch (error) {
-    console.error('API call failed, returning empty array:', error);
-    return [];
-  }
-}
+import { staticDashboardData } from '@/lib/data';
 
 const alertIcons = {
   info: <Info className="h-5 w-5" />,
@@ -49,17 +27,35 @@ export default function AlertsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const alertData = await getAlerts();
-      setAlerts(alertData);
-      setLoading(false);
+    const eventSource = new EventSource('/api/dashboard-data');
+
+    eventSource.onmessage = (event) => {
+      try {
+        const dashboardData: DashboardData = JSON.parse(event.data);
+        if (dashboardData && dashboardData.alerts) {
+            const alertData = Object.values(dashboardData.alerts).reverse();
+            setAlerts(alertData);
+        } else {
+            setAlerts(Object.values(staticDashboardData.alerts).reverse());
+        }
+      } catch (error) {
+        console.error('Failed to parse dashboard data:', error);
+        setAlerts(Object.values(staticDashboardData.alerts).reverse());
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchData();
+    eventSource.onerror = (error) => {
+      console.error('EventSource failed:', error);
+      setAlerts(Object.values(staticDashboardData.alerts).reverse());
+      setLoading(false);
+      eventSource.close();
+    };
 
-    const interval = setInterval(fetchData, 30000);
-
-    return () => clearInterval(interval);
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   return (
