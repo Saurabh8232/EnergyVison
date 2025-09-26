@@ -1,13 +1,14 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { AlertTriangle, Info, ShieldAlert } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import type { Alert, DashboardData } from '@/lib/types';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { staticDashboardData } from '@/lib/data';
+import { useData } from '@/context/data-context';
+import type { Alert } from '@/lib/types';
 
 const alertIcons = {
   info: <Info className="h-5 w-5" />,
@@ -23,40 +24,17 @@ const alertColors = {
 
 
 export default function AlertsPage() {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const eventSource = new EventSource('/api/dashboard-data');
-
-    eventSource.onmessage = (event) => {
-      try {
-        const dashboardData: DashboardData = JSON.parse(event.data);
-        if (dashboardData && dashboardData.alerts) {
-            const alertData = Object.values(dashboardData.alerts).reverse();
-            setAlerts(alertData);
-        } else {
-            setAlerts(Object.values(staticDashboardData.alerts).reverse());
-        }
-      } catch (error) {
-        console.error('Failed to parse dashboard data:', error);
-        setAlerts(Object.values(staticDashboardData.alerts).reverse());
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    eventSource.onerror = (error) => {
-      console.error('EventSource failed:', error);
-      setAlerts(Object.values(staticDashboardData.alerts).reverse());
-      setLoading(false);
-      eventSource.close();
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, []);
+  const { data, loading } = useData();
+  
+  const alerts = useMemo(() => {
+    if (!data || !data.alerts) return [];
+    // The data from API is an object, convert to array and reverse
+    if (typeof data.alerts === 'object' && !Array.isArray(data.alerts)) {
+        return Object.values(data.alerts).reverse();
+    }
+    // If it's already an array (from static data)
+    return (data.alerts as Alert[]).slice().reverse();
+  }, [data]);
 
   return (
     <main className="flex-1 overflow-auto p-4 md:p-6">

@@ -1,46 +1,14 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import PredictionChart from '@/components/predictions/prediction-chart';
-import { staticDashboardData } from '@/lib/data';
-import type { DashboardData, PredictionData } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useData } from '@/context/data-context';
 
 export default function PredictionsPage() {
-    const [predictionData, setPredictionData] = useState<PredictionData[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const eventSource = new EventSource('/api/dashboard-data');
-
-        eventSource.onmessage = (event) => {
-          try {
-            const dashboardData: DashboardData = JSON.parse(event.data);
-            if (dashboardData && dashboardData.predictionData) {
-              setPredictionData(dashboardData.predictionData);
-            } else {
-              setPredictionData(staticDashboardData.predictionData);
-            }
-          } catch (error) {
-            console.error('Failed to parse dashboard data:', error);
-            setPredictionData(staticDashboardData.predictionData);
-          } finally {
-            setLoading(false);
-          }
-        };
-    
-        eventSource.onerror = (error) => {
-          console.error('EventSource failed:', error);
-          setPredictionData(staticDashboardData.predictionData);
-          setLoading(false);
-          eventSource.close();
-        };
-    
-        return () => {
-          eventSource.close();
-        };
-      }, []);
+    const { data, loading } = useData();
+    const predictionData = data?.predictionData || [];
 
   return (
     <main className="flex-1 overflow-auto p-4 md:p-6">

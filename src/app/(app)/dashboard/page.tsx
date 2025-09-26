@@ -1,39 +1,33 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Sun, Cloud, CloudRain, Wind, MapPin, Zap, Battery, Power, Bolt } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Wind, MapPin, Zap } from 'lucide-react';
 import StatCard from '@/components/dashboard/stat-card';
 import PowerCharts from '@/components/dashboard/power-charts';
-import type { DashboardData } from '@/lib/types';
-import { staticDashboardData } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useData } from '@/context/data-context';
 
 export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData>(staticDashboardData);
+  const { data, loading } = useData();
 
-  useEffect(() => {
-    const eventSource = new EventSource('/api/dashboard-data');
-
-    eventSource.onmessage = (event) => {
-      try {
-        const dashboardData = JSON.parse(event.data);
-        if (dashboardData) {
-          setData(dashboardData);
-        }
-      } catch (error) {
-        console.error('Failed to parse dashboard data:', error);
-      }
-    };
-
-    eventSource.onerror = (error) => {
-      console.error('EventSource failed:', error);
-      eventSource.close();
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, []);
+  if (loading || !data) {
+    return (
+      <main className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="grid gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="h-[126px] w-full" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-[348px] w-full" />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const { 
     solarGenerationData, 

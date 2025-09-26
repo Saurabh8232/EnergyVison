@@ -1,5 +1,7 @@
+
 'use client';
 
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -41,19 +43,24 @@ const chartConfigInverter = {
 };
 
 interface PowerChartsProps {
-  solarData: TimeSeriesData[];
-  batteryData: TimeSeriesData[];
-  solarParamsData: TimeSeriesData[];
-  acParamsData: TimeSeriesData[];
+  solarData?: TimeSeriesData[];
+  batteryData?: TimeSeriesData[];
+  solarParamsData?: TimeSeriesData[];
+  acParamsData?: TimeSeriesData[];
 }
 
-export default function PowerCharts({ solarData, batteryData, solarParamsData, acParamsData }: PowerChartsProps) {
+export default function PowerCharts({ solarData = [], batteryData = [], solarParamsData = [], acParamsData = [] }: PowerChartsProps) {
   
-    // Combine AC parameters and Load data for the inverter chart
-    const combinedInverterData = acParamsData.map((ac, index) => ({
-        ...ac,
-        load: batteryData[index]?.load ?? 0,
-      }));
+  const combinedInverterData = React.useMemo(() => {
+    if (!acParamsData || !batteryData || acParamsData.length === 0 || batteryData.length === 0) {
+      return [];
+    }
+    return acParamsData.map((ac, index) => ({
+      ...ac,
+      load: batteryData[index]?.load ?? 0,
+    }));
+  }, [acParamsData, batteryData]);
+
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
